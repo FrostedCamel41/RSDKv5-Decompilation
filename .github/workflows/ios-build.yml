@@ -1,0 +1,58 @@
+
+name: iOS Baseline Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ios-crt-filters
+    paths:
+      - '.github/workflows/ios-build.yml'
+
+jobs:
+  ios-build:
+    runs-on: macos-15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: List available schemes
+        run: |
+          xcodebuild -list \
+            -project RSDKv5.xcodeproj
+
+      - name: Build unsigned iOS app
+        run: |
+          xcodebuild \
+            -project RSDKv5.xcodeproj \
+            -scheme RSDKv5 \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p Payload
+          APP=$(find build/Build/Products/Release-iphoneos \
+            -maxdepth 1 -name '*.app' -print -quit)
+          test -n "$APP"
+          cp -R "$APP" Payload/
+          zip -qr SonicMania-iOS-Test.ipa Payload
+
+      - name: Upload test IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonicMania-iOS-Baseline
+          path: SonicMania-iOS-Test.ipa
+          retention-days: 7
