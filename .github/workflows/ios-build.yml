@@ -29,6 +29,15 @@ jobs:
           xcodebuild -list \
             -project RSDKv5.xcodeproj
 
+      
+      - name: Inspect SDL iOS project
+        run: |
+          echo "Checking SDL Xcode project..."
+          find dependencies/ios -name SDL.xcodeproj -print
+          echo "Available SDL targets:"
+          xcodebuild -list \
+            -project dependencies/ios/SDL/Xcode/SDL/SDL.xcodeproj
+    
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
