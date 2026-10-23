@@ -38,6 +38,18 @@ jobs:
           xcodebuild -list \
             -project dependencies/ios/SDL/Xcode/SDL/SDL.xcodeproj
     
+      
+      - name: Build SDL2 iOS framework
+        run: |
+          xcodebuild \
+            -project dependencies/ios/SDL/Xcode/SDL/SDL.xcodeproj \
+            -scheme Framework-iOS \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
