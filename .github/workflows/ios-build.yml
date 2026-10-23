@@ -1,6 +1,7 @@
 
 name: iOS Baseline Build
 # Test with implicit Xcode dependencies disabled
+# Rebuild after SDL2 header fix
 
 on:
   workflow_dispatch:
