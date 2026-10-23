@@ -50,6 +50,19 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build
 
+      
+      
+      - name: Inspect main build dependencies
+        run: |
+          xcodebuild \
+            -project RSDKv5.xcodeproj \
+            -scheme RSDKv5 \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -showBuildSettings
+
+
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
