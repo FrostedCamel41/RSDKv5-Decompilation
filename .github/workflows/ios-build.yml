@@ -52,6 +52,12 @@ jobs:
 
       
       
+      
+      - name: Inspect SDL target references
+        run: |
+          echo "SDL target references:"
+          grep -n -E 'PBXTargetDependency|PBXContainerItemProxy|PBXReferenceProxy|remoteInfo =|remoteGlobalIDString =|targetProxy =|SDL.xcodeproj|Framework-iOS|xcFramework-iOS' RSDKv5.xcodeproj/project.pbxproj || true
+
       - name: Inspect main build dependencies
         run: |
           xcodebuild \
