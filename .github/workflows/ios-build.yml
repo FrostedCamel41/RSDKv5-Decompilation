@@ -59,7 +59,8 @@ jobs:
           echo "SDL target dependencies:"
           sed -n '/Begin PBXTargetDependency section/,/End PBXTargetDependency section/p' RSDKv5.xcodeproj/project.pbxproj
           echo "SDL framework references:"
-          grep -n -C 8 'F2F153A22A070C3400C57723' RSDKv5.xcodeproj/project.pbxproj || true
+          grep -n -C 5 'F2F153A32A070C3400C57723' RSDKv5.xcodeproj/project.pbxproj || true
+
 
 
       - name: Inspect main build dependencies
