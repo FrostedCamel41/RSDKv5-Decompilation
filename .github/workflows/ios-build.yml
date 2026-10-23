@@ -53,10 +53,13 @@ jobs:
       
       
       
+      
       - name: Inspect SDL target references
         run: |
-          echo "SDL target references:"
-          grep -n -E 'PBXTargetDependency|PBXContainerItemProxy|PBXReferenceProxy|remoteInfo =|remoteGlobalIDString =|targetProxy =|SDL.xcodeproj|Framework-iOS|xcFramework-iOS' RSDKv5.xcodeproj/project.pbxproj || true
+          echo "SDL target dependencies:"
+          sed -n '/Begin PBXTargetDependency section/,/End PBXTargetDependency section/p' RSDKv5.xcodeproj/project.pbxproj
+          echo "SDL framework references:"
+          grep -n -C 5 'remoteInfo = Framework;' RSDKv5.xcodeproj/project.pbxproj || true
 
       - name: Inspect main build dependencies
         run: |
