@@ -301,8 +301,38 @@ void RenderDevice::FlipScreen()
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
         SDL_RenderFillRect(renderer, NULL);
     }
-    // no change here
+    
+    // Temporary iOS CRT scanline rendering test.
+    // Remove this block after testing.
+    {
+        int outputWidth = 0;
+        int outputHeight = 0;
+
+        if (SDL_GetRendererOutputSize(renderer, &outputWidth, &outputHeight) == 0
+            && outputWidth > 0 && outputHeight > 0) {
+
+            SDL_BlendMode previousBlendMode;
+            SDL_GetRenderDrawBlendMode(renderer, &previousBlendMode);
+
+            Uint8 previousR, previousG, previousB, previousA;
+            SDL_GetRenderDrawColor(renderer, &previousR, &previousG,
+                                   &previousB, &previousA);
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 55);
+
+            for (int y = 0; y < outputHeight; y += 4) {
+                SDL_RenderDrawLine(renderer, 0, y, outputWidth - 1, y);
+            }
+
+            SDL_SetRenderDrawColor(renderer, previousR, previousG,
+                                   previousB, previousA);
+            SDL_SetRenderDrawBlendMode(renderer, previousBlendMode);
+        }
+    }
+
     SDL_RenderPresent(renderer);
+
 }
 
 void RenderDevice::Release(bool32 isRefresh)
