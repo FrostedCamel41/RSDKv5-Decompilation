@@ -62,8 +62,9 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
-            -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
+            CONFIGURATION_BUILD_DIR="$PWD/build/Build/Products/Release-iphoneos" \
+            ARCHS=arm64 \
             build
 
           xcodebuild \
