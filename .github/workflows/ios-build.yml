@@ -158,7 +158,17 @@ jobs:
             INFOPLIST_FILE= \
             GENERATE_INFOPLIST_FILE=YES \
             build
-
+      - name: Enable iOS Files access
+        run: |
+          APP=$(find build/Build/Products/Release-iphoneos \
+            -maxdepth 1 -name '*.app' -print -quit)
+          test -n "$APP"
+          /usr/libexec/PlistBuddy -c \
+            "Add :UIFileSharingEnabled bool true" \
+            "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c \
+            "Add :LSSupportsOpeningDocumentsInPlace bool true" \
+            "$APP/Info.plist"
       - name: Package unsigned IPA
         run: |
           mkdir -p Payload
