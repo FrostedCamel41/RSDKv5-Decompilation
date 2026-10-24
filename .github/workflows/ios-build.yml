@@ -52,6 +52,39 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build
+                  - name: Build Ogg Vorbis and Theora iOS libraries
+        run: |
+          set -e
+
+          xcodebuild \
+            -project dependencies/ios/ogg/ios/Ogg.xcodeproj \
+            -scheme UniversalLib \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+          xcodebuild \
+            -project dependencies/ios/vorbis/macosx/Vorbis.xcodeproj \
+            -scheme 'libvorbis (static)' \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+          xcodebuild \
+            -project dependencies/ios/theora/macosx/Theora.xcodeproj \
+            -scheme 'libtheoradec (static)' \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
 
       
       
