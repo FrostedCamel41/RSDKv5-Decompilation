@@ -122,7 +122,28 @@ jobs:
           echo "Ultrawide schemes:"
           xcodebuild -list -project Mods/UltrawideMania/UltrawideMania.xcodeproj     
 
+      - name: Build Sonic Mania frameworks
+        run: |
+          set -e
 
+          for entry in \
+            "Game/SonicMania.xcodeproj|SonicMania" \
+            "Mods/ManiaTouchControls/ManiaTouchControls.xcodeproj|ManiaTouchControls" \
+            "Mods/UltrawideMania/UltrawideMania.xcodeproj|UltrawideMania"
+          do
+            project="${entry%%|*}"
+            target="${entry##*|}"
+
+            xcodebuild \
+              -project "$project" \
+              -target "$target" \
+              -configuration Release \
+              -sdk iphoneos \
+              CONFIGURATION_BUILD_DIR="$PWD/build/Build/Products/Release-iphoneos" \
+              CODE_SIGNING_ALLOWED=NO \
+              ARCHS=arm64 \
+              build
+          done
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
