@@ -319,7 +319,11 @@ void RenderDevice::FlipScreen()
                                    &previousB, &previousA);
 
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 55);
+            SDL_SetRenderDrawColor(
+    renderer, 0, 0, 0,
+    videoSettings.shaderID == 0 ? 0 :
+    videoSettings.shaderID == 1 ? 35 : 100
+);
 
             for (int y = 0; y < outputHeight; y += 4) {
                 SDL_RenderDrawLine(renderer, 0, y, outputWidth - 1, y);
