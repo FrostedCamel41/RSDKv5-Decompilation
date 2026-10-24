@@ -154,7 +154,9 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_ALLOWED=NO \
+            INFOPLIST_FILE= \
+            GENERATE_INFOPLIST_FILE=YES \
             build
 
       - name: Package unsigned IPA
