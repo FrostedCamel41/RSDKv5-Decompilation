@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - ios-crt-filters
-    
+      - ios-original-crt-metal
 
 jobs:
   ios-build:
