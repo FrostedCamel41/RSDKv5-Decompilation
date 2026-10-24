@@ -126,8 +126,9 @@ jobs:
         run: |
           set -e
 
-          for entry in \
+                    for entry in \
             "Game/SonicMania.xcodeproj|SonicMania" \
+            "Mods/GameAPI/GameAPI.xcodeproj|GameAPI" \
             "Mods/ManiaTouchControls/ManiaTouchControls.xcodeproj|ManiaTouchControls" \
             "Mods/UltrawideMania/UltrawideMania.xcodeproj|UltrawideMania"
           do
