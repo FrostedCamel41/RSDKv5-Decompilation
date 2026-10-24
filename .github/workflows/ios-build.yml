@@ -109,6 +109,18 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -showBuildSettings
+      - name: Inspect game and mod frameworks
+        run: |
+          echo "Game submodule:"
+          git submodule status Game
+          echo "Framework projects:"
+          find Game Mods -name '*.xcodeproj' -print
+          echo "Game schemes:"
+          xcodebuild -list -project Game/SonicMania.xcodeproj
+          echo "Touch controls schemes:"
+          xcodebuild -list -project Mods/ManiaTouchControls/ManiaTouchControls.xcodeproj
+          echo "Ultrawide schemes:"
+          xcodebuild -list -project Mods/UltrawideMania/UltrawideMania.xcodeproj     
 
 
       - name: Build unsigned iOS app
