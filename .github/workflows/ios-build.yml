@@ -58,7 +58,7 @@ jobs:
 
           xcodebuild \
             -project dependencies/ios/ogg/ios/Ogg.xcodeproj \
-            -target libogg \ \
+            -target libogg \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
