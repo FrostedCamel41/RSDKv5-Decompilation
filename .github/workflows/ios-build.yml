@@ -52,7 +52,7 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build
-                  - name: Build Ogg Vorbis and Theora iOS libraries
+      - name: Build Ogg Vorbis and Theora iOS libraries
         run: |
           set -e
 
