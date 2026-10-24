@@ -164,10 +164,13 @@ jobs:
             -maxdepth 1 -name '*.app' -print -quit)
           test -n "$APP"
           /usr/libexec/PlistBuddy -c \
+            "Set :UIFileSharingEnabled true" \
+            "$APP/Info.plist" || \
+          /usr/libexec/PlistBuddy -c \
             "Add :UIFileSharingEnabled bool true" \
             "$APP/Info.plist"
           /usr/libexec/PlistBuddy -c \
-            "Add :LSSupportsOpeningDocumentsInPlace bool true" \
+            "Set :LSSupportsOpeningDocumentsInPlace true" \
             "$APP/Info.plist"
       - name: Package unsigned IPA
         run: |
