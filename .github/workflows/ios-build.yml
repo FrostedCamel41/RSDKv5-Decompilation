@@ -8,8 +8,7 @@ on:
   push:
     branches:
       - ios-crt-filters
-    paths:
-      - '.github/workflows/ios-build.yml'
+    
 
 jobs:
   ios-build:
