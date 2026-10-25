@@ -39,7 +39,12 @@ jobs:
           xcodebuild -list \
             -project dependencies/ios/SDL/Xcode/SDL/SDL.xcodeproj
     
-      
+      - name: Validate native CRT-Sharp Metal shader
+        run: |
+          xcrun -sdk iphoneos metal \
+            -c RSDKv5/Shaders/Metal/CRT-Yeetron.metal \
+            -o /tmp/CRT-Yeetron.air
+          echo "CRT-Sharp Metal shader compiled successfully" 
       - name: Build SDL2 iOS framework
         run: |
           xcodebuild \
