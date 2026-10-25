@@ -195,6 +195,7 @@ if (!pipeline) {
           pipelineError);
     return false;
 }
+crtSharpPipeline = pipeline;
 
 NSLog(@"iOS CRT: CRT-Sharp pipeline created successfully");
 return true;
