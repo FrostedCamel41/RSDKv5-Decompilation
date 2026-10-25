@@ -14,6 +14,9 @@
 
 #include "cocoaHelpers.hpp"
 #include <dlfcn.h>
+#if TARGET_OS_IPHONE
+static id<MTLRenderPipelineState> crtSharpPipeline = nil;
+#endif
 const char* getResourcesPath(void)
 {
     static char pathStorage[1024] = {0};
