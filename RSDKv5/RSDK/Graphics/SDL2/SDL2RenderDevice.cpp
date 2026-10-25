@@ -430,7 +430,14 @@ static bool crtTextureChecked = false;
                 PrintLog(PRINT_NORMAL,
                          "iOS CRT: Source texture = %dx%d, format=%u, access=%d",
                          width, height, format, access);
-            }
+            
+                bool nativeTextureAvailable =
+                    iosCRTMetalTextureAvailable(crtSource);
+
+                PrintLog(PRINT_NORMAL,
+                         "iOS CRT: Native Metal texture = %s",
+                         nativeTextureAvailable ? "AVAILABLE" : "UNAVAILABLE");
+         }
         }
     }
 #endif
