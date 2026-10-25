@@ -80,6 +80,21 @@ int getDisplayRefresh() {
         return (int)[screen maximumFramesPerSecond];
 #endif
     return 60;
+// Native iOS CRT Metal bridge.
+extern "C" bool iosCRTMetalAvailable(void *metalEncoder)
+{
+#if TARGET_OS_IPHONE
+    if (!metalEncoder)
+        return false;
+
+    id<MTLRenderCommandEncoder> encoder =
+        (__bridge id<MTLRenderCommandEncoder>)metalEncoder;
+
+    return [encoder respondsToSelector:
+        @selector(setRenderPipelineState:)];
+#else
+    return false;
+#endif
 }
 #endif
  
