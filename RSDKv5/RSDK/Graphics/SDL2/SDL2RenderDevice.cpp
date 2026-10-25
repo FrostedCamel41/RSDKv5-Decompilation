@@ -322,8 +322,8 @@ PrintLog(PRINT_NORMAL,
     bool shaderLoaded = iosCRTMetalShaderLoaded();
 
 PrintLog(PRINT_NORMAL,
-         "iOS CRT: CRT-Sharp library = %s",
-         shaderLoaded ? "LOADED" : "FAILED");
+         "iOS CRT: CRT-Sharp pipeline = %s",
+         shaderLoaded ? "CREATED" : "FAILED");
     }
 #endif
     // Temporary iOS CRT scanline rendering test.
