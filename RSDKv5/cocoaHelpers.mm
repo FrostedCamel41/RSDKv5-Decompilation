@@ -4,7 +4,8 @@
 
 
 #import <Foundation/Foundation.h>
-
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 #if TARGET_OS_OSX
 #import <AppKit/AppKit.h>
 #else
