@@ -121,7 +121,31 @@ extern "C" bool iosCRTMetalShaderLoaded(void)
         id<MTLFunction> fragment =
             [library newFunctionWithName:@"crtYeetron"];
 
-        return vertex != nil && fragment != nil;
+        if (!vertex || !fragment)
+    return false;
+
+// Test creation of the original CRT-Sharp render pipeline.
+MTLRenderPipelineDescriptor *descriptor =
+    [[MTLRenderPipelineDescriptor alloc] init];
+
+descriptor.vertexFunction = vertex;
+descriptor.fragmentFunction = fragment;
+descriptor.colorAttachments[0].pixelFormat =
+    MTLPixelFormatBGRA8Unorm;
+
+NSError *pipelineError = nil;
+id<MTLRenderPipelineState> pipeline =
+    [device newRenderPipelineStateWithDescriptor:descriptor
+                                          error:&pipelineError];
+
+if (!pipeline) {
+    NSLog(@"iOS CRT: Pipeline creation failed: %@",
+          pipelineError);
+    return false;
+}
+
+NSLog(@"iOS CRT: CRT-Sharp pipeline created successfully");
+return true;
     }
 #else
     return false;
