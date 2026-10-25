@@ -186,7 +186,24 @@ jobs:
           /usr/libexec/PlistBuddy -c \
             "Set :LSSupportsOpeningDocumentsInPlace true" \
             "$APP/Info.plist"
-      - name: Package unsigned IPA
+      
+      - name: Bundle CRT-Sharp Metal shader
+        run: |
+          set -e
+
+          APP=$(find build/Build/Products/Release-iphoneos \
+            -maxdepth 1 -name '*.app' -print -quit)
+          test -n "$APP"
+
+          SHADER="build/MetalShaders/CRT-Yeetron.metallib"
+          test -s "$SHADER"
+
+          mkdir -p "$APP/Shaders"
+          cp "$SHADER" "$APP/Shaders/CRT-Yeetron.metallib"
+
+          echo "Bundled Metal shader:"
+          ls -lh "$APP/Shaders/CRT-Yeetron.metallib"
+- name: Package unsigned IPA
         run: |
           mkdir -p Payload
           APP=$(find build/Build/Products/Release-iphoneos \
