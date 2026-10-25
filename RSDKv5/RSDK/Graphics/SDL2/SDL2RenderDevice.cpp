@@ -326,6 +326,24 @@ PrintLog(PRINT_NORMAL,
          shaderLoaded ? "CREATED" : "FAILED");
     }
 
+    // Test whether SDL2 supports an offscreen render target.
+static bool crtTargetChecked = false;
+
+if (!crtTargetChecked) {
+    crtTargetChecked = true;
+
+    SDL_RendererInfo info = {};
+    bool supported = false;
+
+    if (SDL_GetRendererInfo(renderer, &info) == 0) {
+        supported =
+            (info.flags & SDL_RENDERER_TARGETTEXTURE) != 0;
+    }
+
+    PrintLog(PRINT_NORMAL,
+             "iOS CRT: Offscreen render target = %s",
+             supported ? "SUPPORTED" : "UNSUPPORTED");
+    }
     static bool crtTextureChecked = false;
 
     if (!crtTextureChecked) {
