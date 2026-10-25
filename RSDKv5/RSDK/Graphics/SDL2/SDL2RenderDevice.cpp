@@ -363,9 +363,30 @@ if (!crtTargetChecked) {
                  "iOS CRT: Target texture creation = %s",
                  testTarget ? "SUCCESS" : SDL_GetError());
 
+        
         if (testTarget) {
+            SDL_Texture *previousTarget =
+                SDL_GetRenderTarget(renderer);
+
+            int switchResult =
+                SDL_SetRenderTarget(renderer, testTarget);
+
+            PrintLog(PRINT_NORMAL,
+                     "iOS CRT: Target switch = %s",
+                     switchResult == 0 ? "SUCCESS" : SDL_GetError());
+
+            if (switchResult == 0) {
+                int restoreResult =
+                    SDL_SetRenderTarget(renderer, previousTarget);
+
+                PrintLog(PRINT_NORMAL,
+                         "iOS CRT: Target restore = %s",
+                         restoreResult == 0 ? "SUCCESS" : SDL_GetError());
+            }
+
             SDL_DestroyTexture(testTarget);
         }
+
     }
 
 static bool crtTextureChecked = false;
