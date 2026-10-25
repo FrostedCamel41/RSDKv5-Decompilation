@@ -107,7 +107,18 @@ extern "C" bool iosCRTMetalTextureAvailable(void *sdlTexture)
     SDL_Log("iOS CRT: Native texture symbol = FOUND");
 
 
-    return lookup(static_cast<SDL_Texture *>(sdlTexture)) != nullptr;
+    void *nativeTexture =
+    lookup(static_cast<SDL_Texture *>(sdlTexture));
+
+if (nativeTexture) {
+    id<MTLTexture> texture =
+        (__bridge id<MTLTexture>)nativeTexture;
+
+    NSLog(@"iOS CRT: Source texture Metal device = %@",
+          texture.device.name);
+}
+
+return nativeTexture != nullptr;
 #else
     return false;
 #endif
@@ -157,7 +168,8 @@ extern "C" bool iosCRTMetalShaderLoaded(void)
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         if (!device)
             return false;
-
+NSLog(@"iOS CRT: Pipeline Metal device = %@",
+      device.name);
         NSString *path = [[[NSBundle mainBundle] resourcePath]
             stringByAppendingPathComponent:@"Shaders/CRT-Yeetron.metallib"];
 
