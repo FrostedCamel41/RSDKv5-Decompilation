@@ -344,7 +344,31 @@ if (!crtTargetChecked) {
              "iOS CRT: Offscreen render target = %s",
              supported ? "SUPPORTED" : "UNSUPPORTED");
     }
-    static bool crtTextureChecked = false;
+    
+    // Diagnostic: create and release an offscreen texture.
+    static bool crtTargetCreationChecked = false;
+
+    if (!crtTargetCreationChecked) {
+        crtTargetCreationChecked = true;
+
+        SDL_Texture *testTarget = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,
+            SDL_TEXTUREACCESS_TARGET,
+            64,
+            64
+        );
+
+        PrintLog(PRINT_NORMAL,
+                 "iOS CRT: Target texture creation = %s",
+                 testTarget ? "SUCCESS" : SDL_GetError());
+
+        if (testTarget) {
+            SDL_DestroyTexture(testTarget);
+        }
+    }
+
+static bool crtTextureChecked = false;
 
     if (!crtTextureChecked) {
         SDL_Texture *crtSource =
