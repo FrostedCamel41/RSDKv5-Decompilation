@@ -324,24 +324,32 @@ PrintLog(PRINT_NORMAL,
 PrintLog(PRINT_NORMAL,
          "iOS CRT: CRT-Sharp pipeline = %s",
          shaderLoaded ? "CREATED" : "FAILED");
-    }SDL_Texture *crtSource =
-    videoSettings.screenCount == 0
-        ? imageTexture
-        : screenTexture[0];
+    }    }
 
-if (crtSource) {
-    Uint32 format = 0;
-    int access = 0;
-    int width = 0;
-    int height = 0;
+    static bool crtTextureChecked = false;
 
-    if (SDL_QueryTexture(crtSource, &format, &access,
-                         &width, &height) == 0) {
-        PrintLog(PRINT_NORMAL,
-                 "iOS CRT: Source texture = %dx%d, format=%u, access=%d",
-                 width, height, format, access);
+    if (!crtTextureChecked) {
+        SDL_Texture *crtSource =
+            videoSettings.screenCount == 0
+                ? imageTexture
+                : screenTexture[0];
+
+        if (crtSource) {
+            Uint32 format = 0;
+            int access = 0;
+            int width = 0;
+            int height = 0;
+
+            if (SDL_QueryTexture(crtSource, &format, &access,
+                                 &width, &height) == 0) {
+                crtTextureChecked = true;
+
+                PrintLog(PRINT_NORMAL,
+                         "iOS CRT: Source texture = %dx%d, format=%u, access=%d",
+                         width, height, format, access);
+            }
+        }
     }
-}
 #endif
     // Temporary iOS CRT scanline rendering test.
     // Remove this block after testing.
