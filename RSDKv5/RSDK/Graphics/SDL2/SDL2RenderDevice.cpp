@@ -115,7 +115,19 @@ void RenderDevice::FlipScreen()
     // pillarboxes in fullscreen from displaying garbage data.
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(renderer);
-
+#if RETRO_PLATFORM == RETRO_iOS
+    static bool loggedDisplaySize = false;
+    if (!loggedDisplaySize) {
+        loggedDisplaySize = true;
+        int outputW = 0, outputH = 0;
+        int logicalW = 0, logicalH = 0;
+        SDL_GetRendererOutputSize(renderer, &outputW, &outputH);
+        SDL_RenderGetLogicalSize(renderer, &logicalW, &logicalH);
+        PrintLog(PRINT_NORMAL,
+                 "iOS Display: output=%dx%d logical=%dx%d",
+                 outputW, outputH, logicalW, logicalH);
+    }
+#endif
 #if (SDL_COMPILEDVERSION >= SDL_VERSIONNUM(2, 0, 18))
     int32 startVert = 0;
     switch (videoSettings.screenCount) {
