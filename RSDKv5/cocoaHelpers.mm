@@ -13,7 +13,7 @@
 #endif
 
 #include "cocoaHelpers.hpp"
-
+#include <dlfcn.h>
 const char* getResourcesPath(void)
 {
     static char pathStorage[1024] = {0};
@@ -80,6 +80,28 @@ int getDisplayRefresh() {
         return (int)[screen maximumFramesPerSecond];
 #endif
     return 60;
+}
+
+extern "C" bool iosCRTMetalTextureAvailable(void *sdlTexture)
+{
+#if TARGET_OS_IPHONE
+    if (!sdlTexture)
+        return false;
+
+    typedef void *(*MetalTextureLookup)(SDL_Texture *);
+
+    MetalTextureLookup lookup =
+        reinterpret_cast<MetalTextureLookup>(
+            dlsym(RTLD_DEFAULT, "RSDK_GetMetalTexture")
+        );
+
+    if (!lookup)
+        return false;
+
+    return lookup(static_cast<SDL_Texture *>(sdlTexture)) != nullptr;
+#else
+    return false;
+#endif
 }
 // Native iOS CRT Metal bridge.
 extern "C" bool iosCRTMetalAvailable(void *metalEncoder)
