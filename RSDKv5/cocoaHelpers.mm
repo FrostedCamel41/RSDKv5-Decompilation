@@ -97,5 +97,34 @@ extern "C" bool iosCRTMetalAvailable(void *metalEncoder)
     return false;
 #endif
 }
+// Load the original CRT-Sharp Metal shader library.
+extern "C" bool iosCRTMetalShaderLoaded(void)
+{
+#if TARGET_OS_IPHONE
+    @autoreleasepool {
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        if (!device)
+            return false;
+
+        NSString *path = [[[NSBundle mainBundle] resourcePath]
+            stringByAppendingPathComponent:@"Shaders/CRT-Yeetron.metallib"];
+
+        NSError *error = nil;
+        id<MTLLibrary> library =
+            [device newLibraryWithFile:path error:&error];
+
+        if (!library)
+            return false;
+
+        id<MTLFunction> vertex =
+            [library newFunctionWithName:@"crtVertex"];
+        id<MTLFunction> fragment =
+            [library newFunctionWithName:@"crtYeetron"];
+
+        return vertex != nil && fragment != nil;
+    }
+#else
+    return false;
 #endif
+}
  
