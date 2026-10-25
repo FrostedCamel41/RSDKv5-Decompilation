@@ -131,8 +131,8 @@ jobs:
           find build -type f \( -name SDL2 -o -name 'libSDL2*.a' \) -exec sh -c 'for file do echo "Checking $file"; xcrun nm -a "$file" | grep RSDK_GetMetalTexture || true; done' sh {} +
           echo "Locating compiled SDL2 Metal renderer objects"
           find build -type f -name 'SDL_render_metal.o' -print
-          find build -type f -name 'SDL_render_metal.o' -exec xcrun nm -a {} \; | grep RSDK_GetMetalTexture || true - name: Build Ogg Vorbis and Theora iOS libraries
-      - name: Build Ogg Vorbis and Theora iOS librariesrun: |
+          find build -type f -name 'SDL_render_metal.o' -exec xcrun nm -a {} \; | grep RSDK_GetMetalTexture || true
+      - name: Build Ogg Vorbis and Theora iOS libraries
         run: |
           set -e
 
