@@ -15,7 +15,7 @@ extern "C" {
 #endif
 bool iosCRTMetalShaderLoaded(void);
 bool iosCRTMetalAvailable(void *metalEncoder);
-
+bool iosCRTMetalTextureAvailable(void *sdlTexture);
 #ifdef __cplusplus
 }
 #endif
