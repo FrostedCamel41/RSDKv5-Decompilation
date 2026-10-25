@@ -312,9 +312,11 @@ void RenderDevice::FlipScreen()
         void *metalEncoder =
             SDL_RenderGetMetalCommandEncoder(renderer);
 
-        PrintLog(PRINT_NORMAL,
-                 "iOS CRT: Metal command encoder = %s",
-                 metalEncoder ? "AVAILABLE" : "UNAVAILABLE");
+        bool bridgeAvailable = iosCRTMetalAvailable(metalEncoder);
+
+PrintLog(PRINT_NORMAL,
+         "iOS CRT: Metal bridge = %s",
+         bridgeAvailable ? "AVAILABLE" : "UNAVAILABLE");
     }
 #endif
     // Temporary iOS CRT scanline rendering test.
