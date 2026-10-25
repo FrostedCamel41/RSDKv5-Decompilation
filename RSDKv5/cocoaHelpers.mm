@@ -109,6 +109,30 @@ extern "C" bool iosCRTMetalTextureAvailable(void *sdlTexture)
     return false;
 #endif
 }
+extern "C" int iosCRTMetalTextureStatus(void *sdlTexture)
+{
+#if TARGET_OS_IPHONE
+    if (!sdlTexture)
+        return 0;
+
+    typedef void *(*MetalTextureLookup)(SDL_Texture *);
+
+    MetalTextureLookup lookup =
+        reinterpret_cast<MetalTextureLookup>(
+            dlsym(RTLD_DEFAULT, "RSDK_GetMetalTexture")
+        );
+
+    if (!lookup)
+        return 1;
+
+    if (!lookup(static_cast<SDL_Texture *>(sdlTexture)))
+        return 2;
+
+    return 3;
+#else
+    return 0;
+#endif
+}
 // Native iOS CRT Metal bridge.
 extern "C" bool iosCRTMetalAvailable(void *metalEncoder)
 {
