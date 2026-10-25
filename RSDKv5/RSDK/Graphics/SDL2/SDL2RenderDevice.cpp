@@ -319,6 +319,11 @@ void RenderDevice::FlipScreen()
 PrintLog(PRINT_NORMAL,
          "iOS CRT: Metal bridge = %s",
          bridgeAvailable ? "AVAILABLE" : "UNAVAILABLE");
+    bool shaderLoaded = iosCRTMetalShaderLoaded();
+
+PrintLog(PRINT_NORMAL,
+         "iOS CRT: CRT-Sharp library = %s",
+         shaderLoaded ? "LOADED" : "FAILED");
     }
 #endif
     // Temporary iOS CRT scanline rendering test.
