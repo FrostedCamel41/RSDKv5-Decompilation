@@ -13,7 +13,7 @@ int getDisplayRefresh();
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+bool iosCRTMetalShaderLoaded(void);
 bool iosCRTMetalAvailable(void *metalEncoder);
 
 #ifdef __cplusplus
