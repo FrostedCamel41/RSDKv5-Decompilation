@@ -301,7 +301,22 @@ void RenderDevice::FlipScreen()
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF - (dimAmount * 0xFF));
         SDL_RenderFillRect(renderer, NULL);
     }
-    
+    #if RETRO_PLATFORM == RETRO_iOS
+    // Diagnostic: check direct access to SDL's Metal encoder.
+    // Run once; leave the existing CRT overlay unchanged.
+    static bool metalEncoderChecked = false;
+
+    if (!metalEncoderChecked) {
+        metalEncoderChecked = true;
+
+        void *metalEncoder =
+            SDL_RenderGetMetalCommandEncoder(renderer);
+
+        PrintLog(PRINT_NORMAL,
+                 "iOS CRT: Metal command encoder = %s",
+                 metalEncoder ? "AVAILABLE" : "UNAVAILABLE");
+    }
+#endif
     // Temporary iOS CRT scanline rendering test.
     // Remove this block after testing.
     {
