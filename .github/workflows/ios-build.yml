@@ -144,6 +144,21 @@ jobs:
               ARCHS=arm64 \
               build
           done
+      
+      - name: Compile CRT-Sharp Metal shader
+        run: |
+          set -e
+          mkdir -p build/MetalShaders
+
+          xcrun -sdk iphoneos metal \
+            -c RSDKv5/Shaders/Metal/CRT-Yeetron.metal \
+            -o build/MetalShaders/CRT-Yeetron.air
+
+          xcrun -sdk iphoneos metallib \
+            build/MetalShaders/CRT-Yeetron.air \
+            -o build/MetalShaders/CRT-Yeetron.metallib
+
+          echo "CRT-Sharp Metal shader compiled successfully"
       - name: Build unsigned iOS app
         run: |
           xcodebuild \
