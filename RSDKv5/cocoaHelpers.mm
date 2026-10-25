@@ -95,8 +95,14 @@ extern "C" bool iosCRTMetalTextureAvailable(void *sdlTexture)
             dlsym(RTLD_DEFAULT, "RSDK_GetMetalTexture")
         );
 
-    if (!lookup)
+    
+    if (!lookup) {
+        SDL_Log("iOS CRT: Native texture symbol = NOT FOUND");
         return false;
+    }
+
+    SDL_Log("iOS CRT: Native texture symbol = FOUND");
+
 
     return lookup(static_cast<SDL_Texture *>(sdlTexture)) != nullptr;
 #else
