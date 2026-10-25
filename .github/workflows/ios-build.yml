@@ -174,9 +174,10 @@ jobs:
             -destination 'generic/platform=iOS' \
             -derivedDataPath build \
               CODE_SIGNING_ALLOWED=NO \
-            INFOPLIST_FILE= \
-            GENERATE_INFOPLIST_FILE=YES \
-            build
+              OTHER_LDFLAGS='$(inherited) -framework Metal' \
+              INFOPLIST_FILE= \
+              GENERATE_INFOPLIST_FILE=YES \
+              build
       - name: Enable iOS Files access
         run: |
           APP=$(find build/Build/Products/Release-iphoneos \
