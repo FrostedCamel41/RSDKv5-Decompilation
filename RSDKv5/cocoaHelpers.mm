@@ -80,6 +80,7 @@ int getDisplayRefresh() {
         return (int)[screen maximumFramesPerSecond];
 #endif
     return 60;
+}
 // Native iOS CRT Metal bridge.
 extern "C" bool iosCRTMetalAvailable(void *metalEncoder)
 {
