@@ -1,4 +1,6 @@
-
+#if RETRO_PLATFORM == RETRO_iOS
+#include "../../../cocoaHelpers.hpp"
+#endif
 SDL_Window *RenderDevice::window     = nullptr;
 SDL_Renderer *RenderDevice::renderer = nullptr;
 SDL_Texture *RenderDevice::screenTexture[SCREEN_COUNT];
