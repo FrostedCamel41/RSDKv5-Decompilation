@@ -90,7 +90,24 @@ jobs:
                   (__bridge METAL_TextureData *)texture->driverdata;
               return (__bridge void *)data.mtltexture;
           }
-          """
+          __attribute__((visibility("default"), used))
+         int RSDK_GetMetalTextureDiagnostic(SDL_Texture *texture)
+  {
+    if (!texture)
+        return 0;
+
+    if (!texture->driverdata)
+        return texture->native ? 4 : 1;
+
+    METAL_TextureData *data =
+        (__bridge METAL_TextureData *)texture->driverdata;
+
+    if (!data.mtltexture)
+        return texture->native ? 5 : 2;
+
+    return 3;
+}
+"""
 
           source = source.replace(
               anchor,
