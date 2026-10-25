@@ -123,6 +123,11 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             build
+      - name: Check SDL2 Metal texture bridge symbol
+        run: |
+          echo "Searching for RSDK_GetMetalTexture"
+          find build -type f -name SDL2 -exec xcrun nm -g {} \; | grep RSDK_GetMetalTexture || true
+
       - name: Build Ogg Vorbis and Theora iOS libraries
         run: |
           set -e
