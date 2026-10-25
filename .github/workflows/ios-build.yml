@@ -128,7 +128,7 @@ jobs:
           echo "Locating compiled SDL2 binaries"
           find build -type f \( -name SDL2 -o -name 'libSDL2*.a' \) -print
           echo "Checking Metal bridge symbols"
-          find build -type f \( -name SDL2 -o -name 'libSDL2*.a' \) -exec sh -c 'for file do echo "Checking $file"; xcrun nm -g "$file" | grep RSDK_GetMetalTexture || true; done' sh {} +
+          find build -type f \( -name SDL2 -o -name 'libSDL2*.a' \) -exec sh -c 'for file do echo "Checking $file"; xcrun nm -a "$file" | grep RSDK_GetMetalTexture || true; done' sh {} +
       - name: Build Ogg Vorbis and Theora iOS libraries
         run: |
           set -e
