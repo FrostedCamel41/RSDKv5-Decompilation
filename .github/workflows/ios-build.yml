@@ -81,13 +81,20 @@ jobs:
           bridge = """
           /* RSDK iOS CRT texture bridge */
           __attribute__((visibility("default"), used))
-          void *RSDK_GetMetalTexture(SDL_Texture *texture)
+                    void *RSDK_GetMetalTexture(SDL_Texture *texture)
           {
-              if (!texture || !texture->driverdata)
+              if (!texture)
+                  return NULL;
+
+              if (texture->native)
+                  texture = texture->native;
+
+              if (!texture->driverdata)
                   return NULL;
 
               METAL_TextureData *data =
                   (__bridge METAL_TextureData *)texture->driverdata;
+
               return (__bridge void *)data.mtltexture;
           }
           __attribute__((visibility("default"), used))
