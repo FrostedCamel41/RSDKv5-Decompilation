@@ -132,6 +132,9 @@ jobs:
           echo "Locating compiled SDL2 Metal renderer objects"
           find build -type f -name 'SDL_render_metal.o' -print
           find build -type f -name 'SDL_render_metal.o' -exec xcrun nm -a {} \; | grep RSDK_GetMetalTexture || true
+          echo "Checking final SDL2 framework exports"
+          xcrun nm -gU build/Build/Products/Release-iphoneos/SDL2.framework/SDL2 | grep RSDK_GetMetalTexture || true
+          xcrun otool -l build/Build/Products/Release-iphoneos/SDL2.framework/SDL2 | grep -A 5 LC_DYLD_EXPORTS_TRIE || true
       - name: Build Ogg Vorbis and Theora iOS libraries
         run: |
           set -e
