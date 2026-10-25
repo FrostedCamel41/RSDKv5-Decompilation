@@ -375,16 +375,36 @@ if (!crtTargetChecked) {
                      "iOS CRT: Target switch = %s",
                      switchResult == 0 ? "SUCCESS" : SDL_GetError());
 
+            
             if (switchResult == 0) {
+                SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+                SDL_RenderClear(renderer);
+
+                SDL_Rect whiteSquare = {16, 16, 32, 32};
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderFillRect(renderer, &whiteSquare);
+
                 int restoreResult =
                     SDL_SetRenderTarget(renderer, previousTarget);
 
                 PrintLog(PRINT_NORMAL,
                          "iOS CRT: Target restore = %s",
                          restoreResult == 0 ? "SUCCESS" : SDL_GetError());
+
+                if (restoreResult == 0) {
+                    SDL_Rect destination = {8, 8, 64, 64};
+
+                    int copyResult =
+                        SDL_RenderCopy(renderer, testTarget, NULL, &destination);
+
+                    PrintLog(PRINT_NORMAL,
+                             "iOS CRT: Target copy = %s",
+                             copyResult == 0 ? "SUCCESS" : SDL_GetError());
+                }
             }
 
             SDL_DestroyTexture(testTarget);
+
         }
 
     }
