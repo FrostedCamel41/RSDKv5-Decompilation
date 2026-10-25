@@ -203,7 +203,7 @@ jobs:
 
           echo "Bundled Metal shader:"
           ls -lh "$APP/Shaders/CRT-Yeetron.metallib"
-- name: Package unsigned IPA
+      - name: Package unsigned IPA
         run: |
           mkdir -p Payload
           APP=$(find build/Build/Products/Release-iphoneos \
