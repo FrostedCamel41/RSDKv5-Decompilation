@@ -641,6 +641,12 @@ bool RenderDevice::InitGraphicsAPI()
             return false;
         }
         
+        SDL_RendererInfo rendererInfo;
+        if (SDL_GetRendererInfo(renderer, &rendererInfo) == 0) {
+            PrintLog(PRINT_NORMAL, "iOS CRT: SDL renderer backend = %s",
+                     rendererInfo.name);
+        }
+
         GetDisplays();
         
         if (!InitGraphicsAPI() || !InitShaders())
