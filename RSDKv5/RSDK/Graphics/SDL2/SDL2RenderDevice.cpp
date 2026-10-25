@@ -324,7 +324,7 @@ PrintLog(PRINT_NORMAL,
 PrintLog(PRINT_NORMAL,
          "iOS CRT: CRT-Sharp pipeline = %s",
          shaderLoaded ? "CREATED" : "FAILED");
-    }    }
+    }
 
     static bool crtTextureChecked = false;
 
