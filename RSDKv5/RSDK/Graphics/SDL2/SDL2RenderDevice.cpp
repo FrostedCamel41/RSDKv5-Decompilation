@@ -440,6 +440,12 @@ bool nativeTextureAvailable =
 PrintLog(PRINT_NORMAL,
          "iOS CRT: Native Metal texture = %s",
          nativeTextureAvailable ? "AVAILABLE" : "UNAVAILABLE");
+
+int textureStatus =
+    iosCRTMetalTextureStatus(crtSource);
+PrintLog(PRINT_NORMAL,
+         "iOS CRT: Native texture diagnostic status = %d",
+         textureStatus);
          }
         }
     }
