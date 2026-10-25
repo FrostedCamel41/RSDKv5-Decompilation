@@ -115,20 +115,17 @@ extern "C" int iosCRTMetalTextureStatus(void *sdlTexture)
     if (!sdlTexture)
         return 0;
 
-    typedef void *(*MetalTextureLookup)(SDL_Texture *);
+    typedef int (*MetalTextureDiagnostic)(SDL_Texture *);
 
-    MetalTextureLookup lookup =
-        reinterpret_cast<MetalTextureLookup>(
-            dlsym(RTLD_DEFAULT, "RSDK_GetMetalTexture")
-        );
+    MetalTextureDiagnostic lookup =
+    reinterpret_cast<MetalTextureDiagnostic>(
+        dlsym(RTLD_DEFAULT, "RSDK_GetMetalTextureDiagnostic")
+    );
 
     if (!lookup)
         return 1;
 
-    if (!lookup(static_cast<SDL_Texture *>(sdlTexture)))
-        return 2;
-
-    return 3;
+    return lookup(static_cast<SDL_Texture *>(sdlTexture));
 #else
     return 0;
 #endif
