@@ -45,6 +45,19 @@ jobs:
             -c RSDKv5/Shaders/Metal/CRT-Yeetron.metal \
             -o /tmp/CRT-Yeetron.air
           echo "CRT-Sharp Metal shader compiled successfully" 
+      
+      - name: Inspect SDL2 Metal texture internals
+        run: |
+          echo "SDL2 revision:"
+          git -C dependencies/ios/SDL rev-parse HEAD
+
+          echo "Metal texture implementation:"
+          grep -n -E \
+            'METAL_TextureData|METAL_CreateTexture|METAL_SetRenderTarget' \
+            dependencies/ios/SDL/src/render/metal/SDL_render_metal.m | head -25
+
+          echo "SDL2 framework project:"
+          test -f dependencies/ios/SDL/Xcode/SDL/SDL.xcodeproj/project.pbxproj
       - name: Build SDL2 iOS framework
         run: |
           xcodebuild \
