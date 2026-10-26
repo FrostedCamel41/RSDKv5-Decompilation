@@ -354,13 +354,25 @@ jobs:
           # Remaster the original control-specific palette slots instead of
           # recoloring every GIF entry by brightness. Keep index 0 (usually
           # transparent) and non-control accent colors unchanged.
+          # Test the blue ramp actually used by the touch sprites.
+          # Preserve index 0 (magenta transparency) and all sprite geometry.
           control_colors = {
-              1: (28, 61, 94),       # readable navy details
-              32: (81, 146, 182),    # muted outline
-              34: (133, 206, 226),   # cool-blue shading
-              35: (192, 234, 244),   # soft highlight
-              55: (133, 206, 226),   # control face shade
-              56: (192, 234, 244),   # control face highlight
+              1: (32, 76, 110),
+              2: (40, 93, 136),
+              3: (58, 127, 171),
+              4: (80, 164, 204),
+              5: (105, 190, 222),
+              6: (132, 211, 233),
+              7: (181, 234, 247),
+              8: (47, 104, 133),
+              9: (111, 188, 214),
+              10: (169, 219, 231),
+              11: (213, 243, 249),
+              32: (81, 146, 182),
+              34: (133, 206, 226),
+              35: (192, 234, 244),
+              55: (133, 206, 226),
+              56: (192, 234, 244),
           }
           for index in range(count):
               pos = offset + 3 * index
