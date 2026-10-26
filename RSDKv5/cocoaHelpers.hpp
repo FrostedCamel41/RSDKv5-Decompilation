@@ -17,6 +17,17 @@ bool iosCRTMetalShaderLoaded(void);
 bool iosCRTMetalAvailable(void *metalEncoder);
 bool iosCRTMetalTextureAvailable(void *sdlTexture);
 int iosCRTMetalTextureStatus(void *sdlTexture);
+bool iosCRTMetalRender(
+    void *metalEncoder,
+    void *sdlTexture,
+    float pixelWidth,
+    float pixelHeight,
+    float textureWidth,
+    float textureHeight,
+    float viewWidth,
+    float viewHeight,
+    float screenDim
+);
 #ifdef __cplusplus
 }
 #endif
