@@ -108,5 +108,15 @@ fragment float4 crtYeetron(
         ? intensity * blended
         : blended;
 
-    return float4(result, color.a) * u.screenDim;
+    // Negative screenDim selects the softer native CRT variant.
+    // Preserve the established CRT-Sharp calculations above unchanged.
+    if (u.screenDim < 0.0) {
+        float2 texel = float2(1.0 / u.textureSize.x, 0.0);
+        float3 left = source.sample(sampleMode, sampleUV - texel * 0.6).rgb;
+        float3 right = source.sample(sampleMode, sampleUV + texel * 0.6).rgb;
+        float3 softened = color.rgb * 0.70 + (left + right) * 0.15;
+        result = mix(softened, result, 0.35);
+    }
+
+    return float4(result, color.a) * abs(u.screenDim);
 }

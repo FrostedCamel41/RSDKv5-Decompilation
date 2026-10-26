@@ -432,70 +432,6 @@ if (!crtTargetChecked) {
              supported ? "SUPPORTED" : "UNSUPPORTED");
     }
     
-    // Diagnostic: create and release an offscreen texture.
-    static bool crtTargetCreationChecked = false;
-
-    if (!crtTargetCreationChecked) {
-        crtTargetCreationChecked = true;
-
-        SDL_Texture *testTarget = SDL_CreateTexture(
-            renderer,
-            SDL_PIXELFORMAT_RGBA8888,
-            SDL_TEXTUREACCESS_TARGET,
-            64,
-            64
-        );
-
-        PrintLog(PRINT_NORMAL,
-                 "iOS CRT: Target texture creation = %s",
-                 testTarget ? "SUCCESS" : SDL_GetError());
-
-        
-        if (testTarget) {
-            SDL_Texture *previousTarget =
-                SDL_GetRenderTarget(renderer);
-
-            int switchResult =
-                SDL_SetRenderTarget(renderer, testTarget);
-
-            PrintLog(PRINT_NORMAL,
-                     "iOS CRT: Target switch = %s",
-                     switchResult == 0 ? "SUCCESS" : SDL_GetError());
-
-            
-            if (switchResult == 0) {
-                SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-                SDL_RenderClear(renderer);
-
-                SDL_Rect whiteSquare = {16, 16, 32, 32};
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                SDL_RenderFillRect(renderer, &whiteSquare);
-
-                int restoreResult =
-                    SDL_SetRenderTarget(renderer, previousTarget);
-
-                PrintLog(PRINT_NORMAL,
-                         "iOS CRT: Target restore = %s",
-                         restoreResult == 0 ? "SUCCESS" : SDL_GetError());
-
-                if (restoreResult == 0) {
-                    SDL_Rect destination = {8, 8, 64, 64};
-
-                    int copyResult =
-                        SDL_RenderCopy(renderer, testTarget, NULL, &destination);
-
-                    PrintLog(PRINT_NORMAL,
-                             "iOS CRT: Target copy = %s",
-                             copyResult == 0 ? "SUCCESS" : SDL_GetError());
-                }
-            }
-
-            SDL_DestroyTexture(testTarget);
-
-        }
-
-    }
-
 static bool crtTextureChecked = false;
 
     if (!crtTextureChecked) {
@@ -556,8 +492,7 @@ PrintLog(PRINT_NORMAL,
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(
     renderer, 0, 0, 0,
-    videoSettings.shaderID == 2 ? 100 :
-videoSettings.shaderID == 3 ? 35 : 0
+    0
 );
 
             for (int y = 0; y < outputHeight; y += 4) {
@@ -586,6 +521,36 @@ SDL_RenderSetLogicalSize(renderer, 0, 0);
             PrintLog(PRINT_NORMAL,
                      "iOS CRT: Display target restore failed: %s",
                      SDL_GetError());
+        }
+    }
+#endif
+#if RETRO_PLATFORM == RETRO_iOS
+    // Experimental native CRT-Sharp pass. The regular SDL copy above
+    // remains the fallback when the Metal bridge is unavailable.
+    if (crtOffscreenActive && (videoSettings.shaderID == 2 || videoSettings.shaderID == 3)
+        && iosCRTMetalShaderLoaded()) {
+        int sourceWidth = 0, sourceHeight = 0;
+        int outputWidth = 0, outputHeight = 0;
+        if (SDL_QueryTexture(crtFrameTarget, nullptr, nullptr,
+                             &sourceWidth, &sourceHeight) == 0
+            && SDL_GetRendererOutputSize(renderer,
+                                         &outputWidth, &outputHeight) == 0
+            && sourceWidth > 0 && sourceHeight > 0
+            && outputWidth > 0 && outputHeight > 0) {
+            void *encoder = SDL_RenderGetMetalCommandEncoder(renderer);
+            static bool nativeResultLogged = false;
+            bool rendered = iosCRTMetalRender(
+                encoder, crtFrameTarget,
+                (float)sourceWidth, (float)sourceHeight,
+                (float)sourceWidth, (float)sourceHeight,
+                (float)outputWidth, (float)outputHeight,
+                videoSettings.shaderID == 3 ? -dimAmount : dimAmount);
+            if (!nativeResultLogged) {
+                nativeResultLogged = true;
+                PrintLog(PRINT_NORMAL, "iOS CRT: Native CRT-%s draw = %s",
+                         videoSettings.shaderID == 3 ? "Soft" : "Sharp",
+                         rendered ? "SUCCESS" : "FAILED");
+            }
         }
     }
 #endif

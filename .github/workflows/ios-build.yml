@@ -9,6 +9,7 @@ on:
     branches:
       - ios-crt-filters
       - ios-original-crt-metal
+      - ios-native-crt-metal-test
 
 jobs:
   ios-build:
