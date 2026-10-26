@@ -43,6 +43,9 @@ void InitModAPI(void)
     // Setup Config
     config.vDPadSize     = Mod.GetSettingsFloat("", "Config:vDPadSize", 0.78);
     config.vDPadOpacity  = Mod.GetSettingsFloat("", "Config:vDPadOpacity", .42);
+    // 0.0 = invisible but functional; 1.0 = fully opaque. Keep a safe range.
+    if (config.vDPadOpacity < 0.0f) config.vDPadOpacity = 0.0f;
+    if (config.vDPadOpacity > 1.0f) config.vDPadOpacity = 1.0f;
     config.moveDPadPos.x = Mod.GetSettingsInteger("", "Config:moveDPadPosX", 56 + extraWidth);
     config.moveDPadPos.y = Mod.GetSettingsInteger("", "Config:moveDPadPosY", 192);
     config.jumpDPadPos.x = Mod.GetSettingsInteger("", "Config:jumpDPadPosX", -56 - extraWidth);
