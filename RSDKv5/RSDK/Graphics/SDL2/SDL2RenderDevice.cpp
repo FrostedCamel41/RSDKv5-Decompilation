@@ -1,6 +1,7 @@
 #if RETRO_PLATFORM == RETRO_iOS
 #include "../../../cocoaHelpers.hpp"
 #endif
+static SDL_Texture *crtFrameTarget = nullptr;
 SDL_Window *RenderDevice::window     = nullptr;
 SDL_Renderer *RenderDevice::renderer = nullptr;
 SDL_Texture *RenderDevice::screenTexture[SCREEN_COUNT];
@@ -112,7 +113,7 @@ void RenderDevice::FlipScreen()
     float dimAmount = videoSettings.dimMax * videoSettings.dimPercent;
 #if RETRO_PLATFORM == RETRO_iOS
     // Persistent offscreen target for future CRT processing.
-    static SDL_Texture *crtFrameTarget = nullptr;
+    
         if (crtFrameTarget) {
         int currentWidth = 0;
         int currentHeight = 0;
