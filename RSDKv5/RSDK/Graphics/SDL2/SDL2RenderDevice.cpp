@@ -164,7 +164,7 @@ if (outputWidth > 0 && outputHeight > 0) {
     // Begin rendering the game into the CRT frame texture.
     bool crtOffscreenActive = false;
 
-    if (false && crtFrameTarget) {
+    if (crtFrameTarget) {
         if (SDL_SetRenderTarget(renderer, crtFrameTarget) == 0) {
             crtOffscreenActive = true;
         }
