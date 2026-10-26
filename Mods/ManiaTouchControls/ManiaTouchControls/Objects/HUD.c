@@ -87,7 +87,8 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
 
     int32 x = FROM_FIXED(pos->x);
     int32 y = FROM_FIXED(pos->y);
-    int32 radius = (int32)(23.0f * config.vDPadSize);
+    // Reduce rendered size only; preserve the original touch hitboxes.
+    int32 radius = (int32)(17.0f * config.vDPadSize);
     if (radius < 8) radius = 8;
     int32 a = self->alpha;
     if (a > 255) a = 255;
@@ -110,14 +111,14 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     // D-pad base: brushed silver rim, recessed dark inner edge and a
     // graphite thumbstick with a soft, bright upper reflection.
     if (frame == 10) {
-        int32 outer = radius + 8;
+        int32 outer = radius + 5;
         RSDK.DrawCircle(x, y + 1, outer + 1, 0x17191C, a / 3, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y, outer, 0x777C81, (a * 3) / 4, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y - 1, outer - 2, 0xE3E5E6, (a * 3) / 4, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y + 1, outer - 5, 0x7D8185, (a * 4) / 5, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y, radius - 2, 0x32363B, (a * 4) / 5, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y - 2, radius - 5, 0x656A70, (a * 4) / 5, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y - radius / 4, radius / 2, 0xD4D7D9, a / 3, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, outer, 0x85898E, (a * 3) / 4, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - 1, outer - 2, 0xF0F1F2, (a * 3) / 4, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y + 1, outer - 5, 0x9CA0A4, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, radius - 2, 0x33363A, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - 2, radius - 5, 0x6E7276, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - radius / 4, radius / 2, 0xF1F2F3, a / 3, INK_ALPHA, screenRelative);
         RSDK.DrawCircleOutline(x, y, outer - 1, outer, 0xF6F7F8, (a * 3) / 4, INK_ALPHA, screenRelative);
         // Four tiny engraved direction indicators around the bezel.
         int32 m = outer - 3;
@@ -129,12 +130,12 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     }
 
     // Jump and auxiliary action buttons share the silver/graphite finish.
-    int32 small = frame == 5 ? 11 : radius;
+    int32 small = frame == 5 ? 10 : radius;
     RSDK.DrawCircle(x, y + 1, small + 2, 0x3B3E42, a / 2, INK_ALPHA, screenRelative);
-    RSDK.DrawCircle(x, y, small + 1, 0xC9CDD0, (a * 4) / 5, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y, small + 1, 0xE1E3E5, (a * 4) / 5, INK_ALPHA, screenRelative);
     RSDK.DrawCircle(x, y + 1, small - 2, 0x44484D, (a * 4) / 5, INK_ALPHA, screenRelative);
-    RSDK.DrawCircle(x, y - 2, small - 4, pressed ? 0xAEB3B7 : 0x73787D, (a * 4) / 5, INK_ALPHA, screenRelative);
-    RSDK.DrawCircle(x, y - small / 4, small / 2, 0xE5E7E9, a / 3, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y - 2, small - 4, pressed ? 0xAEB3B7 : 0x777A7D, (a * 4) / 5, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y - small / 4, small / 2, 0xF2F3F4, a / 3, INK_ALPHA, screenRelative);
     RSDK.DrawCircleOutline(x, y, small, small + 1, 0xF4F5F6, (a * 3) / 4, INK_ALPHA, screenRelative);
     if (frame == 5) {
         RSDK.DrawRect(x - 4, y - 5, 3, 10, 0xF4F5F6, a, INK_ALPHA, screenRelative);
