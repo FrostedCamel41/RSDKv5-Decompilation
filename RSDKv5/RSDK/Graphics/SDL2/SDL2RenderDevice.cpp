@@ -110,7 +110,10 @@ void RenderDevice::FlipScreen()
     }
 
     float dimAmount = videoSettings.dimMax * videoSettings.dimPercent;
-
+#if RETRO_PLATFORM == RETRO_iOS
+    // Persistent offscreen target for future CRT processing.
+    static SDL_Texture *crtFrameTarget = nullptr;
+#endif
     // Clear the screen. This is needed to keep the
     // pillarboxes in fullscreen from displaying garbage data.
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
