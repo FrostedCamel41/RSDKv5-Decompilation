@@ -21,8 +21,18 @@ static void HUD_UpdateTouchVisibility(void)
             ++pressed;
     }
 
+    // Require all fingers released before allowing another toggle.
+    // Brief drops from three fingers to one or two must not re-arm it.
+    if (pressed == 0) {
+        touchVisibilityHold = 0;
+        touchVisibilityLatched = false;
+        return;
+    }
+    if (touchVisibilityLatched)
+        return;
+
     if (pressed >= 3) {
-        if (!touchVisibilityLatched && ++touchVisibilityHold >= 60) {
+        if (++touchVisibilityHold >= 45) {
             if (config.vDPadOpacity > 0.0f) {
                 touchVisibleOpacity = config.vDPadOpacity;
                 config.vDPadOpacity = 0.0f;
@@ -37,7 +47,6 @@ static void HUD_UpdateTouchVisibility(void)
     }
     else {
         touchVisibilityHold = 0;
-        touchVisibilityLatched = false;
     }
 }
 
@@ -46,6 +55,11 @@ void HUD_DrawTouchControls(void)
     RSDK_THIS(HUD);
 
     HUD_UpdateTouchVisibility();
+
+    // Invisible mode must suppress rendering outright: cached fade alphas
+    // otherwise keep the buttons visible even when opacity is set to zero.
+    if (config.vDPadOpacity <= 0.0f)
+        return;
 
     int32 playerID                  = SceneInfo->currentScreenID;
     EntityPlayer *player            = RSDK_GET_ENTITY(playerID, Player);
