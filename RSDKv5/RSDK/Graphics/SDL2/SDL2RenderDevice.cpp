@@ -120,13 +120,15 @@ void RenderDevice::FlipScreen()
         int targetWidth = 0;
         int targetHeight = 0;
 
-        if (SDL_GetRendererOutputSize(
-                renderer, &currentWidth, &currentHeight) == 0
-            && SDL_QueryTexture(
-                crtFrameTarget, nullptr, nullptr,
-                &targetWidth, &targetHeight) == 0
-            && (currentWidth != targetWidth ||
-                currentHeight != targetHeight)) {
+        SDL_RenderGetLogicalSize(
+    renderer, &currentWidth, &currentHeight);
+
+if (currentWidth > 0 && currentHeight > 0
+    && SDL_QueryTexture(
+           crtFrameTarget, nullptr, nullptr,
+           &targetWidth, &targetHeight) == 0
+    && (currentWidth != targetWidth ||
+        currentHeight != targetHeight)) {
 
             SDL_DestroyTexture(crtFrameTarget);
             crtFrameTarget = nullptr;
@@ -139,9 +141,10 @@ void RenderDevice::FlipScreen()
         int outputWidth = 0;
         int outputHeight = 0;
 
-        if (SDL_GetRendererOutputSize(
-                renderer, &outputWidth, &outputHeight) == 0
-            && outputWidth > 0 && outputHeight > 0) {
+        SDL_RenderGetLogicalSize(
+    renderer, &outputWidth, &outputHeight);
+
+if (outputWidth > 0 && outputHeight > 0) {
 
             crtFrameTarget = SDL_CreateTexture(
                 renderer,
