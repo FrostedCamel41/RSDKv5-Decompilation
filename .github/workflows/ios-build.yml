@@ -316,6 +316,44 @@ jobs:
 
           echo "Bundled Metal shader:"
           ls -lh "$APP/Shaders/CRT-Yeetron.metallib"
+      - name: Recolor bundled mobile touch controls for visible prototype
+        run: |
+          set -e
+          APP=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)
+          test -n "$APP"
+          export APP
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          app = Path(os.environ["APP"])
+          path = app / "Data/mods/ManiaTouchControls/Data/Sprites/Global/TouchControls.gif"
+          if not path.is_file():
+              raise SystemExit(f"Touch artwork missing from IPA bundle: {path}")
+
+          raw = bytearray(path.read_bytes())
+          if raw[:6] not in (b"GIF87a", b"GIF89a"):
+              raise SystemExit("Unexpected touch sprite file format")
+          flags = raw[10]
+          if not flags & 0x80:
+              raise SystemExit("Touch GIF has no global palette; refusing silent no-op")
+          count = 2 ** ((flags & 7) + 1)
+          for i in range(count):
+              offset = 13 + 3 * i
+              red, green, blue = raw[offset:offset + 3]
+              brightness = (red * 30 + green * 59 + blue * 11) // 100
+              if brightness > 18:
+                  # Distinctive ice-blue remaster prototype; leave transparency indices intact.
+                  raw[offset:offset + 3] = bytes((
+                      min(255, 55 + brightness * 2 // 3),
+                      min(255, 105 + brightness * 3 // 4),
+                      min(255, 150 + brightness * 2 // 3),
+                  ))
+          path.write_bytes(raw)
+          print(f"TOUCH VISUAL PROTOTYPE: recolored {count} palette entries in {path}")
+          PY
+          test -s "$APP/Data/mods/ManiaTouchControls/Data/Sprites/Global/TouchControls.bin"
+          echo "Touch sprite binary and visibly modified GIF are bundled"
       - name: Package unsigned IPA
         run: |
           mkdir -p Payload
