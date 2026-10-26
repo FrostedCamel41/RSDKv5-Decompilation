@@ -726,11 +726,7 @@ PrintLog(PRINT_NORMAL,
     
     videoSettings.pixWidth = pixelSize.x;
     
-    #if RETRO_PLATFORM == RETRO_iOS
-    SDL_RenderSetLogicalSize(renderer, 0, 0);
-#else
-    SDL_RenderSetLogicalSize(renderer, videoSettings.pixWidth, SCREEN_YSIZE);
-#endif
+SDL_RenderSetLogicalSize(renderer, videoSettings.pixWidth, SCREEN_YSIZE);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     
 #if !RETRO_USE_ORIGINAL_CODE
