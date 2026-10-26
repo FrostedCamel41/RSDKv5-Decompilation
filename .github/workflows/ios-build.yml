@@ -10,6 +10,7 @@ on:
       - ios-crt-filters
       - ios-original-crt-metal
       - ios-native-crt-metal-test
+      - ios-sonic-remaster-touch-test
 
 jobs:
   ios-build:
