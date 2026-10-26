@@ -319,11 +319,12 @@ jobs:
       - name: Force visibly recolored mobile touch artwork in packaged IPA
         run: |
           set -e
-          python3 -m pip install --quiet Pillow
+          python3 -m venv /tmp/mania-touch-py
+          /tmp/mania-touch-py/bin/python -m pip install --quiet Pillow
           APP=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)
           test -n "$APP"
           export APP
-          python3 - <<'PY'
+          /tmp/mania-touch-py/bin/python - <<'PY'
           import os, hashlib
           from pathlib import Path
           from PIL import Image
