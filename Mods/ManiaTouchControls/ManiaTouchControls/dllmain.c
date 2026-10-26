@@ -41,12 +41,12 @@ void InitModAPI(void)
     int extraWidth = (int)((ScreenInfo->size.x - 424) * 0.35);
     
     // Setup Config
-    config.vDPadSize     = Mod.GetSettingsFloat("", "Config:vDPadSize", 1.0);
-    config.vDPadOpacity  = Mod.GetSettingsFloat("", "Config:vDPadOpacity", .625);
+    config.vDPadSize     = Mod.GetSettingsFloat("", "Config:vDPadSize", 0.78);
+    config.vDPadOpacity  = Mod.GetSettingsFloat("", "Config:vDPadOpacity", .42);
     config.moveDPadPos.x = Mod.GetSettingsInteger("", "Config:moveDPadPosX", 56 + extraWidth);
-    config.moveDPadPos.y = Mod.GetSettingsInteger("", "Config:moveDPadPosY", 184);
+    config.moveDPadPos.y = Mod.GetSettingsInteger("", "Config:moveDPadPosY", 192);
     config.jumpDPadPos.x = Mod.GetSettingsInteger("", "Config:jumpDPadPosX", -56 - extraWidth);
-    config.jumpDPadPos.y = Mod.GetSettingsInteger("", "Config:jumpDPadPosY", 188);
+    config.jumpDPadPos.y = Mod.GetSettingsInteger("", "Config:jumpDPadPosY", 194);
 
     Mod.SetSettingsFloat("Config:vDPadSize", config.vDPadSize);
     Mod.SetSettingsFloat("Config:vDPadOpacity", config.vDPadOpacity);
