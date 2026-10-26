@@ -1,3 +1,4 @@
+#import <simd/simd.h>
 #ifdef __APPLE__
 
 #include <SDL.h>
