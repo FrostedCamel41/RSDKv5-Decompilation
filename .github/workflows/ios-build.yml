@@ -338,7 +338,7 @@ jobs:
           # RSDK sprites are palette-indexed: the GIF RGB palette is NOT
           # the runtime palette. Reassign dark button-fill pixels to an
           # existing bright index, preserving geometry and transparency.
-          # Use a soft light-blue ramp for the final-style visual test.
+          # Keep the confirmed working white control artwork as the baseline\n          # while isolated runtime palette rendering is developed.
           from collections import Counter
           with Image.open(path) as source:
               source.load()
@@ -369,7 +369,7 @@ jobs:
                   raise SystemExit("GIF re-encoding altered sprite indices")
               if after_indices[0] != before_indices[0]:
                   raise SystemExit("Transparency index count changed")
-              print("TOUCH BLUE RAMP TEST: 32->60, 34->61, 35->62")
+              print("TOUCH BASELINE: 32,34,35 -> 41 (confirmed white controls)")
               print("TOUCH INDEX COUNTS BEFORE:", before_indices.most_common(16))
               print("TOUCH INDEX COUNTS AFTER:", after_indices.most_common(16))
               print("TOUCH GIF VALIDATED:", check.size, check.mode)
