@@ -571,7 +571,7 @@ PrintLog(PRINT_NORMAL,
         if (SDL_SetRenderTarget(renderer, nullptr) == 0) {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
-
+SDL_RenderSetLogicalSize(renderer, 0, 0);
             if (SDL_RenderCopy(
                     renderer, crtFrameTarget, nullptr, nullptr) != 0) {
                 PrintLog(PRINT_NORMAL,
