@@ -7,9 +7,45 @@ ModObjectHUD *Mod_HUD;
 
 void (*HUD_DrawNumbersBase16)(Vector2 *drawPos, int32 value) = NULL;
 
+// Hold three fingers for approximately one second to toggle the overlay.
+// The input hooks remain active even when the overlay is hidden.
+static int32 touchVisibilityHold = 0;
+static bool32 touchVisibilityLatched = false;
+static float touchVisibleOpacity = 0.42f;
+
+static void HUD_UpdateTouchVisibility(void)
+{
+    int32 pressed = 0;
+    for (int32 i = 0; i < TouchInfo->count; ++i) {
+        if (TouchInfo->down[i])
+            ++pressed;
+    }
+
+    if (pressed >= 3) {
+        if (!touchVisibilityLatched && ++touchVisibilityHold >= 60) {
+            if (config.vDPadOpacity > 0.0f) {
+                touchVisibleOpacity = config.vDPadOpacity;
+                config.vDPadOpacity = 0.0f;
+            }
+            else {
+                config.vDPadOpacity = touchVisibleOpacity;
+            }
+            Mod.SetSettingsFloat("Config:vDPadOpacity", config.vDPadOpacity);
+            Mod.SaveSettings();
+            touchVisibilityLatched = true;
+        }
+    }
+    else {
+        touchVisibilityHold = 0;
+        touchVisibilityLatched = false;
+    }
+}
+
 void HUD_DrawTouchControls(void)
 {
     RSDK_THIS(HUD);
+
+    HUD_UpdateTouchVisibility();
 
     int32 playerID                  = SceneInfo->currentScreenID;
     EntityPlayer *player            = RSDK_GET_ENTITY(playerID, Player);
