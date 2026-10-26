@@ -77,11 +77,8 @@ static void HUD_UpdateTouchVisibility(void)
     touchVisibilityLatched = true;
 }
 
-// Experimental palette-independent touch artwork. The input hitboxes and
-// gesture handling remain unchanged. All colors below are true RGB values,
-// not indices into the active stage palette.
-// Palette-independent, translucent mobile controls. All geometry is visual
-// only: input hitboxes, touch processing and gesture logic are unchanged.
+// Sonic 2 (2013) mobile-inspired silver joystick artwork. Rendering only:
+// touch hitboxes, fade behavior and gesture shortcuts remain unchanged.
 static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRelative)
 {
     RSDK_THIS(HUD);
@@ -94,76 +91,54 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     if (radius < 8) radius = 8;
     int32 a = self->alpha;
     if (a > 255) a = 255;
-    const uint32 fill = 0x648CA9;
-    const uint32 rim = 0xD6ECFA;
-    const uint32 active = 0xB9E5FF;
-    const uint32 glyph = 0xFFFFFF;
-    const uint32 glyphShadow = 0x315575;
     int32 frame = animator->frameID;
     bool32 pressed = animator == &Mod_HUD->dpadTouchAnimator;
-    int32 fillAlpha = pressed ? (a * 3) / 5 : (a * 2) / 5;
-    int32 rimAlpha = (a * 4) / 5;
 
-    if (frame == 10) {
-        // A very light outer guide: retain directional clarity without
-        // obscuring the stage or competing with the four arrow buttons.
-        RSDK.DrawCircle(x, y, radius + 8, fill, a / 14, INK_ALPHA, screenRelative);
-        RSDK.DrawCircleOutline(x, y, radius + 7, radius + 8, rim, a / 3, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y, 3, glyph, a / 2, INK_ALPHA, screenRelative);
-        return;
-    }
-    if (frame == 11) {
-        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
-        return;
-    }
+    // Frames 6-9 indicate directions, but the Sonic 2 look uses a single
+    // circular thumbstick rather than four individual arrow buttons.
     if (frame >= 6 && frame <= 9) {
-        int32 dx = frame == 6 ? -radius : frame == 7 ? radius : 0;
-        int32 dy = frame == 8 ? -radius : frame == 9 ? radius : 0;
-        int32 bx = x + dx, by = y + dy;
-        int32 pad = radius / 2;
-        if (pad < 8) pad = 8;
-        RSDK.DrawCircle(bx, by, pad, pressed ? active : fill, fillAlpha, INK_ALPHA, screenRelative);
-        RSDK.DrawCircleOutline(bx, by, pad - 2, pad, rim, rimAlpha, INK_ALPHA, screenRelative);
-        // High-contrast white chevrons with a soft blue shadow; leave
-        // the translucent button fill and the D-pad guide untouched.
-        if (frame == 6) {
-            RSDK.DrawLine(bx + 3, (by - 4) + 1, bx - 2, (by) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx + 3, by - 4, bx - 2, by, glyph, a, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx - 2, (by) + 1, bx + 3, (by + 4) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx - 2, by, bx + 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
-        }
-        else if (frame == 7) {
-            RSDK.DrawLine(bx - 3, (by - 4) + 1, bx + 2, (by) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx - 3, by - 4, bx + 2, by, glyph, a, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx + 2, (by) + 1, bx - 3, (by + 4) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx + 2, by, bx - 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
-        }
-        else if (frame == 8) {
-            RSDK.DrawLine(bx - 4, (by + 3) + 1, bx, (by - 2) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx - 4, by + 3, bx, by - 2, glyph, a, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx, (by - 2) + 1, bx + 4, (by + 3) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx, by - 2, bx + 4, by + 3, glyph, a, INK_ALPHA, screenRelative);
-        }
-        else {
-            RSDK.DrawLine(bx - 4, (by - 3) + 1, bx, (by + 2) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx - 4, by - 3, bx, by + 2, glyph, a, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx, (by + 2) + 1, bx + 4, (by - 3) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
-            RSDK.DrawLine(bx, by + 2, bx + 4, by - 3, glyph, a, INK_ALPHA, screenRelative);
+        if (pressed) {
+            int32 dx = frame == 6 ? -radius / 5 : frame == 7 ? radius / 5 : 0;
+            int32 dy = frame == 8 ? -radius / 5 : frame == 9 ? radius / 5 : 0;
+            RSDK.DrawCircle(x + dx, y + dy, radius / 2, 0xE8EBED, a / 5, INK_ALPHA, screenRelative);
         }
         return;
     }
-    if (frame >= 12 && frame <= 15)
+    if (frame == 11 || (frame >= 12 && frame <= 15))
         return;
 
-    int32 small = frame == 5 ? 11 : radius;
-    RSDK.DrawCircle(x, y, small, pressed ? active : fill, fillAlpha, INK_ALPHA, screenRelative);
-    RSDK.DrawCircleOutline(x, y, small - 2, small, rim, rimAlpha, INK_ALPHA, screenRelative);
-    if (frame == 5) {
-        RSDK.DrawRect(x - 4, y - 5, 3, 10, glyph, rimAlpha, INK_ALPHA, screenRelative);
-        RSDK.DrawRect(x + 2, y - 5, 3, 10, glyph, rimAlpha, INK_ALPHA, screenRelative);
+    // D-pad base: brushed silver rim, recessed dark inner edge and a
+    // graphite thumbstick with a soft, bright upper reflection.
+    if (frame == 10) {
+        int32 outer = radius + 8;
+        RSDK.DrawCircle(x, y + 1, outer + 1, 0x17191C, a / 3, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, outer, 0x777C81, (a * 3) / 4, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - 1, outer - 2, 0xE3E5E6, (a * 3) / 4, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y + 1, outer - 5, 0x7D8185, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, radius - 2, 0x32363B, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - 2, radius - 5, 0x656A70, (a * 4) / 5, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y - radius / 4, radius / 2, 0xD4D7D9, a / 3, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(x, y, outer - 1, outer, 0xF6F7F8, (a * 3) / 4, INK_ALPHA, screenRelative);
+        // Four tiny engraved direction indicators around the bezel.
+        int32 m = outer - 3;
+        RSDK.DrawLine(x - 2, y - m, x + 2, y - m, 0xF7F7F7, a, INK_ALPHA, screenRelative);
+        RSDK.DrawLine(x - 2, y + m, x + 2, y + m, 0xF7F7F7, a, INK_ALPHA, screenRelative);
+        RSDK.DrawLine(x - m, y - 2, x - m, y + 2, 0xF7F7F7, a, INK_ALPHA, screenRelative);
+        RSDK.DrawLine(x + m, y - 2, x + m, y + 2, 0xF7F7F7, a, INK_ALPHA, screenRelative);
+        return;
     }
-    else {
-        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
+
+    // Jump and auxiliary action buttons share the silver/graphite finish.
+    int32 small = frame == 5 ? 11 : radius;
+    RSDK.DrawCircle(x, y + 1, small + 2, 0x3B3E42, a / 2, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y, small + 1, 0xC9CDD0, (a * 4) / 5, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y + 1, small - 2, 0x44484D, (a * 4) / 5, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y - 2, small - 4, pressed ? 0xAEB3B7 : 0x73787D, (a * 4) / 5, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y - small / 4, small / 2, 0xE5E7E9, a / 3, INK_ALPHA, screenRelative);
+    RSDK.DrawCircleOutline(x, y, small, small + 1, 0xF4F5F6, (a * 3) / 4, INK_ALPHA, screenRelative);
+    if (frame == 5) {
+        RSDK.DrawRect(x - 4, y - 5, 3, 10, 0xF4F5F6, a, INK_ALPHA, screenRelative);
+        RSDK.DrawRect(x + 2, y - 5, 3, 10, 0xF4F5F6, a, INK_ALPHA, screenRelative);
     }
 }
 
