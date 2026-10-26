@@ -335,51 +335,46 @@ jobs:
           if not path.is_file() or not binary.is_file():
               raise SystemExit("TouchControls.gif/.bin missing from expected mod folder")
 
-          before = hashlib.sha256(path.read_bytes()).hexdigest()
-          with Image.open(path) as source:
-              # Preserve original GIF indices and transparent index: the RSDK
-              # sprite loader uses palette entries directly, not RGBA alpha.
-              palette = source.getpalette()
-              if palette is None:
-                  raise SystemExit("Touch sprite has no indexed palette")
-              transparent = source.info.get("transparency", 0)
-              used = set(source.getdata())
-              changed = 0
-              original_colors = {index: tuple(palette[3 * index:3 * index + 3])
-                                 for index in used if index != transparent}
-              # Deliberately high-contrast icy-blue artwork test.
-              # Keep GIF pixel indices, frame geometry and transparency intact.
-              # Unlike the earlier subtle palette tint, this should be
-              # unmistakably different from the royal-blue controls.
-              for index in used:
-                  if index == transparent:
-                      continue
-                  offset = 3 * index
-                  if offset + 2 >= len(palette):
-                      continue
-                  red, green, blue = original_colors[index]
-                  brightness = (red * 299 + green * 587 + blue * 114) // 1000
-                  if brightness < 70:
-                      color = (26, 64, 110)       # navy outline
-                  elif brightness < 150:
-                      color = (112, 202, 235)     # blue midtone
-                  else:
-                      color = (222, 248, 255)     # ice-white highlight
-                  palette[offset:offset + 3] = list(color)
-                  changed += 1
-              print("TOUCH PALETTE INPUT:", original_colors)
-              print("TOUCH PALETTE OUTPUT:", {
-                  index: tuple(palette[3 * index:3 * index + 3])
-                  for index in original_colors
-              })
-              if not changed:
-                  raise SystemExit("No visible palette entries to recolor")
-              source.putpalette(palette)
-              source.save(path, format="GIF", transparency=transparent)
+          # Patch the GIF global color table IN PLACE. RSDK's GIF decoder
+          # reads that table directly; Pillow's GIF re-save may remap indices
+          # or introduce a local color table, defeating the intended change.
+          data = bytearray(path.read_bytes())
+          if data[:6] not in (b"GIF87a", b"GIF89a"):
+              raise SystemExit("Touch artwork is not a GIF")
+          packed = data[10]
+          if not packed & 0x80:
+              raise SystemExit("GIF lacks the global palette RSDK expects")
+          count = 1 << ((packed & 7) + 1)
+          offset = 13
+          if len(data) < offset + count * 3:
+              raise SystemExit("Truncated global GIF palette")
+          before = hashlib.sha256(data).hexdigest()
+          old_colors = []
+          new_colors = []
+          for index in range(count):
+              pos = offset + 3 * index
+              rgb = tuple(data[pos:pos + 3])
+              old_colors.append(rgb)
+              brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) // 1000
+              if brightness < 70:
+                  color = (26, 64, 110)
+              elif brightness < 150:
+                  color = (112, 202, 235)
+              else:
+                  color = (222, 248, 255)
+              data[pos:pos + 3] = bytes(color)
+              new_colors.append(color)
+          path.write_bytes(data)
+          # Verify decoded appearance without re-encoding the file.
+          with Image.open(path) as image:
+              image.load()
+              print("TOUCH GIF VERIFIED:", image.size, image.mode,
+                    "global colors:", count)
           after = hashlib.sha256(path.read_bytes()).hexdigest()
           if before == after:
-              raise SystemExit("Touch artwork unchanged")
-          print(f"TOUCH ARTWORK VERIFIED: {changed} palette entries recolored; SHA {before[:12]} -> {after[:12]}")
+              raise SystemExit("Global GIF palette unchanged")
+          print("TOUCH GLOBAL PALETTE:", list(enumerate(zip(old_colors, new_colors)))[:16])
+          print(f"TOUCH ARTWORK VERIFIED: {count} global colors patched without GIF re-encoding; SHA {before[:12]} -> {after[:12]}")
           PY
       - name: Package unsigned IPA
         run: |
