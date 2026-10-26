@@ -558,6 +558,12 @@ PrintLog(PRINT_NORMAL,
 
 void RenderDevice::Release(bool32 isRefresh)
 {
+    #if RETRO_PLATFORM == RETRO_iOS
+    if (crtFrameTarget) {
+        SDL_DestroyTexture(crtFrameTarget);
+        crtFrameTarget = nullptr;
+    }
+#endif
     for (int32 s = 0; s < SCREEN_COUNT; ++s) {
         if (screenTexture[s])
             SDL_DestroyTexture(screenTexture[s]);
