@@ -345,22 +345,33 @@ jobs:
               transparent = source.info.get("transparency", 0)
               used = set(source.getdata())
               changed = 0
+              original_colors = {index: tuple(palette[3 * index:3 * index + 3])
+                                 for index in used if index != transparent}
+              # Deliberately high-contrast icy-blue artwork test.
+              # Keep GIF pixel indices, frame geometry and transparency intact.
+              # Unlike the earlier subtle palette tint, this should be
+              # unmistakably different from the royal-blue controls.
               for index in used:
                   if index == transparent:
                       continue
                   offset = 3 * index
                   if offset + 2 >= len(palette):
                       continue
-                  # Preserve source luminance for soft blue-white remaster shading.
-                  red, green, blue = palette[offset:offset + 3]
+                  red, green, blue = original_colors[index]
                   brightness = (red * 299 + green * 587 + blue * 114) // 1000
-                  tone = max(0.0, min(1.0, brightness / 255.0))
-                  palette[offset:offset + 3] = [
-                      round(25 + 115 * tone),
-                      round(120 + 115 * tone),
-                      round(175 + 80 * tone),
-                  ]
+                  if brightness < 70:
+                      color = (26, 64, 110)       # navy outline
+                  elif brightness < 150:
+                      color = (112, 202, 235)     # blue midtone
+                  else:
+                      color = (222, 248, 255)     # ice-white highlight
+                  palette[offset:offset + 3] = list(color)
                   changed += 1
+              print("TOUCH PALETTE INPUT:", original_colors)
+              print("TOUCH PALETTE OUTPUT:", {
+                  index: tuple(palette[3 * index:3 * index + 3])
+                  for index in original_colors
+              })
               if not changed:
                   raise SystemExit("No visible palette entries to recolor")
               source.putpalette(palette)
