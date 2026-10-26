@@ -97,7 +97,13 @@ bool32 Player_Input_P1_Hook(bool32 skippedState)
         RSDKControllerState *controller = &ControllerInfo[self->controllerID];
 
         int32 tx = 0, ty = 0;
-        if (CheckTouchRect(0, 96, ScreenInfo->center.x, ScreenInfo->size.y, &tx, &ty) >= 0) {
+        // Remaster-style movement zone follows the visible D-pad, rather than
+        // accepting touches across the entire lower-left half of the screen.
+        const int32 dpadRadius = 52;
+        const int32 dpadX = config.moveDPadPos.x;
+        const int32 dpadY = config.moveDPadPos.y;
+        if (CheckTouchRect(dpadX - dpadRadius, dpadY - dpadRadius,
+                           dpadX + dpadRadius, dpadY + dpadRadius, &tx, &ty) >= 0) {
             tx -= config.moveDPadPos.x;
             ty -= config.moveDPadPos.y;
 
@@ -145,7 +151,17 @@ bool32 Player_Input_P1_Hook(bool32 skippedState)
 
         // fixes a bug with button vs touch
         bool32 touchedJump = false;
-        if (CheckTouchRect(jumpX, jumpY, ScreenInfo->size.x, ScreenInfo->size.y, NULL, NULL) >= 0) {
+        // Limit the main jump zone to the displayed circular action button.
+        // Keep its upper/left boundaries separate from Super/Encore actions.
+        const int32 actionX = ScreenInfo->size.x + config.jumpDPadPos.x;
+        const int32 actionY = config.jumpDPadPos.y;
+        const int32 actionRadius = 42;
+        int32 jumpLeft = actionX - actionRadius;
+        int32 jumpTop = actionY - actionRadius;
+        if (jumpLeft < jumpX) jumpLeft = jumpX;
+        if (jumpTop < jumpY) jumpTop = jumpY;
+        if (CheckTouchRect(jumpLeft, jumpTop,
+                           actionX + actionRadius, actionY + actionRadius, NULL, NULL) >= 0) {
             ControllerInfo->keyA.down |= true;
             controller->keyA.down = true;
             touchedJump           = true;
