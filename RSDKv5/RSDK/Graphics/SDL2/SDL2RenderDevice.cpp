@@ -161,7 +161,7 @@ void RenderDevice::FlipScreen()
     // Begin rendering the game into the CRT frame texture.
     bool crtOffscreenActive = false;
 
-    if (crtFrameTarget) {
+    if (false && crtFrameTarget) {
         if (SDL_SetRenderTarget(renderer, crtFrameTarget) == 0) {
             crtOffscreenActive = true;
         }
