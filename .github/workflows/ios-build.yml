@@ -338,7 +338,7 @@ jobs:
           # RSDK sprites are palette-indexed: the GIF RGB palette is NOT
           # the runtime palette. Reassign dark button-fill pixels to an
           # existing bright index, preserving geometry and transparency.
-          # This is a controlled diagnostic build, not the final artwork.
+          # Use a soft light-blue ramp for the final-style visual test.
           from collections import Counter
           with Image.open(path) as source:
               source.load()
@@ -346,12 +346,16 @@ jobs:
                   raise SystemExit("Unexpected touch sprite format")
               before_indices = Counter(source.getdata())
               original_palette = source.getpalette()
-              # 41 is white in the source palette and is already used by
-              # this sprite. Keep 0 (transparency), 1 (outlines), and
-              # yellow/action accents untouched.
-              mapping = bytes([41 if i in (32, 34, 35) else i for i in range(256)])
+              # Keep transparency, outlines, and yellow/action accents intact.
+              # Source indices 32/34/35 are the button body and shading.
+              # Reuse unused palette slots for a dedicated blue ramp, so
+              # gameplay palette entries are not modified.
+              mapping = bytes([{32: 60, 34: 61, 35: 62}.get(i, i) for i in range(256)])
               pixels = source.tobytes().translate(mapping)
               remapped = Image.frombytes("P", source.size, pixels)
+              original_palette[60*3:60*3+3] = [132, 192, 216]
+              original_palette[61*3:61*3+3] = [177, 218, 234]
+              original_palette[62*3:62*3+3] = [222, 243, 250]
               remapped.putpalette(original_palette)
               remapped.save(path, format="GIF", optimize=False)
           with Image.open(path) as check:
@@ -365,7 +369,7 @@ jobs:
                   raise SystemExit("GIF re-encoding altered sprite indices")
               if after_indices[0] != before_indices[0]:
                   raise SystemExit("Transparency index count changed")
-              print("TOUCH INDEX REMAP TEST: 32,34,35 -> 41 (bright fill)")
+              print("TOUCH BLUE RAMP TEST: 32->60, 34->61, 35->62")
               print("TOUCH INDEX COUNTS BEFORE:", before_indices.most_common(16))
               print("TOUCH INDEX COUNTS AFTER:", after_indices.most_common(16))
               print("TOUCH GIF VALIDATED:", check.size, check.mode)
