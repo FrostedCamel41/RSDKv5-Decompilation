@@ -77,6 +77,58 @@ static void HUD_UpdateTouchVisibility(void)
     touchVisibilityLatched = true;
 }
 
+// Experimental palette-independent touch artwork. The input hitboxes and
+// gesture handling remain unchanged. All colors below are true RGB values,
+// not indices into the active stage palette.
+static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRelative)
+{
+    RSDK_THIS(HUD);
+    if (!pos || self->alpha <= 0)
+        return;
+
+    int32 x = FROM_FIXED(pos->x);
+    int32 y = FROM_FIXED(pos->y);
+    int32 radius = (int32)(23.0f * config.vDPadSize);
+    if (radius < 8) radius = 8;
+    int32 a = self->alpha;
+    if (a > 255) a = 255;
+    const uint32 fill = 0x648CA9;
+    const uint32 rim  = 0xD6ECFA;
+    const uint32 active = 0xB9E5FF;
+    int32 frame = animator->frameID;
+    bool32 pressed = animator == &Mod_HUD->dpadTouchAnimator;
+
+    if (frame == 10) {
+        RSDK.DrawCircle(x, y, radius + 8, fill, a / 3, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(x, y, radius + 6, radius + 8, rim, a, INK_ALPHA, screenRelative);
+        return;
+    }
+    if (frame == 11) {
+        RSDK.DrawCircle(x, y, 5, rim, a, INK_ALPHA, screenRelative);
+        return;
+    }
+    if (frame >= 6 && frame <= 9) {
+        int32 dx = frame == 6 ? -radius : frame == 7 ? radius : 0;
+        int32 dy = frame == 8 ? -radius : frame == 9 ? radius : 0;
+        RSDK.DrawCircle(x + dx, y + dy, 9, pressed ? active : fill, a, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(x + dx, y + dy, 8, 10, rim, a, INK_ALPHA, screenRelative);
+        return;
+    }
+    if (frame >= 12 && frame <= 15)
+        return; // The two cardinal highlights already indicate diagonals.
+
+    int32 small = frame == 5 ? 11 : radius;
+    RSDK.DrawCircle(x, y, small, pressed ? active : fill, a, INK_ALPHA, screenRelative);
+    RSDK.DrawCircleOutline(x, y, small - 2, small, rim, a, INK_ALPHA, screenRelative);
+    if (frame == 5) {
+        RSDK.DrawRect(x - 4, y - 5, 3, 10, rim, a, INK_ALPHA, screenRelative);
+        RSDK.DrawRect(x + 2, y - 5, 3, 10, rim, a, INK_ALPHA, screenRelative);
+    }
+    else {
+        RSDK.DrawCircle(x, y, 4, rim, a, INK_ALPHA, screenRelative);
+    }
+}
+
 void HUD_DrawTouchControls(void)
 {
     RSDK_THIS(HUD);
@@ -171,74 +223,74 @@ void HUD_DrawTouchControls(void)
         // Draw DPad
         self->alpha                   = Mod_HUD->dpadAlpha[playerID];
         Mod_HUD->dpadAnimator.frameID = 10;
-        RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+        HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
 
         if (player->classID == Player->classID ? player->left : controller->keyLeft.down) {
             self->alpha                        = opacity;
             Mod_HUD->dpadTouchAnimator.frameID = 6;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
         }
         else {
             self->alpha                   = Mod_HUD->dpadAlpha[playerID];
             Mod_HUD->dpadAnimator.frameID = 6;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
 
         if (player->classID == Player->classID ? player->down : controller->keyDown.down) {
             self->alpha                        = opacity;
             Mod_HUD->dpadTouchAnimator.frameID = 9;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
 
             if (player->classID == Player->classID ? player->left : controller->keyLeft.down) {
                 Mod_HUD->dpadTouchAnimator.frameID = 14;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
             }
             else if (player->classID == Player->classID ? player->right : controller->keyRight.down) {
                 Mod_HUD->dpadTouchAnimator.frameID = 15;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
             }
         }
         else {
             self->alpha                   = Mod_HUD->dpadAlpha[playerID];
             Mod_HUD->dpadAnimator.frameID = 9;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
 
         if (player->classID == Player->classID ? player->right : controller->keyRight.down) {
             self->alpha                        = opacity;
             Mod_HUD->dpadTouchAnimator.frameID = 7;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
         }
         else {
             self->alpha                   = Mod_HUD->dpadAlpha[playerID];
             Mod_HUD->dpadAnimator.frameID = 7;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
 
         if (player->classID == Player->classID ? player->up : controller->keyUp.down) {
             self->alpha                        = opacity;
             Mod_HUD->dpadTouchAnimator.frameID = 8;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
 
             if (player->classID == Player->classID ? player->left : controller->keyLeft.down) {
                 Mod_HUD->dpadTouchAnimator.frameID = 12;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
             }
             else if (player->classID == Player->classID ? player->right : controller->keyRight.down) {
                 Mod_HUD->dpadTouchAnimator.frameID = 13;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->dpadPos, true);
             }
         }
         else {
             self->alpha                   = Mod_HUD->dpadAlpha[playerID];
             Mod_HUD->dpadAnimator.frameID = 8;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
 
         if (player->classID == Player->classID ? (!player->up && !player->down && !player->left && !player->right) : (!controller->keyUp.down && !controller->keyDown.down && !controller->keyLeft.down && !controller->keyRight.down)) {
             self->alpha                   = Mod_HUD->dpadAlpha[playerID];
             Mod_HUD->dpadAnimator.frameID = 11;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
     }
     else {
@@ -249,7 +301,7 @@ void HUD_DrawTouchControls(void)
         self->alpha = Mod_HUD->dpadAlpha[playerID];
         if (self->alpha > 0) {
             Mod_HUD->dpadAnimator.frameID = 0;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->dpadPos, true);
         }
     }
 
@@ -261,12 +313,12 @@ void HUD_DrawTouchControls(void)
             if (player->classID == Player->classID ? player->jumpHold : controller->keyC.down) {
                 self->alpha                        = opacity;
                 Mod_HUD->dpadTouchAnimator.frameID = 1;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->actionPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->actionPos, true);
             }
             else {
                 self->alpha                   = Mod_HUD->jumpAlpha[playerID];
                 Mod_HUD->dpadAnimator.frameID = 1;
-                RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->actionPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->actionPos, true);
             }
         }
         else {
@@ -280,7 +332,7 @@ void HUD_DrawTouchControls(void)
         self->alpha = Mod_HUD->jumpAlpha[playerID];
         if (self->alpha > 0) {
             Mod_HUD->dpadAnimator.frameID = 1;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &Mod_HUD->actionPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &Mod_HUD->actionPos, true);
         }
     }
 
@@ -293,12 +345,12 @@ void HUD_DrawTouchControls(void)
             if (!player->onGround && ControllerInfo[player->controllerID].keyY.down) {
                 self->alpha                        = opacity;
                 Mod_HUD->dpadTouchAnimator.frameID = 3;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &superPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &superPos, true);
             }
             else {
                 self->alpha                   = Mod_HUD->superAlpha[playerID];
                 Mod_HUD->dpadAnimator.frameID = 3;
-                RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &superPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &superPos, true);
             }
         }
         else {
@@ -312,7 +364,7 @@ void HUD_DrawTouchControls(void)
         self->alpha = Mod_HUD->superAlpha[playerID];
         if (self->alpha > 0) {
             Mod_HUD->dpadAnimator.frameID = 3;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &superPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &superPos, true);
         }
     }
 #endif
@@ -326,12 +378,12 @@ void HUD_DrawTouchControls(void)
             if (player->onGround && ControllerInfo[player->controllerID].keyY.down) {
                 self->alpha                        = opacity;
                 Mod_HUD->dpadTouchAnimator.frameID = 4;
-                RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &swapPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &swapPos, true);
             }
             else {
                 self->alpha                   = Mod_HUD->swapAlpha[playerID];
                 Mod_HUD->dpadAnimator.frameID = 4;
-                RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &swapPos, true);
+                HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &swapPos, true);
             }
         }
         else {
@@ -345,7 +397,7 @@ void HUD_DrawTouchControls(void)
         self->alpha = Mod_HUD->swapAlpha[playerID];
         if (self->alpha > 0) {
             Mod_HUD->dpadAnimator.frameID = 4;
-            RSDK.DrawSprite(&Mod_HUD->dpadAnimator, &swapPos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadAnimator, &swapPos, true);
         }
     }
 #endif
@@ -357,7 +409,7 @@ void HUD_DrawTouchControls(void)
 
             self->alpha                        = Mod_HUD->pauseAlpha[playerID];
             Mod_HUD->dpadTouchAnimator.frameID = 5;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->pausePos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->pausePos, true);
         }
         else {
             Mod_HUD->pauseAlpha[playerID] = 0;
@@ -370,7 +422,7 @@ void HUD_DrawTouchControls(void)
         self->alpha = Mod_HUD->pauseAlpha[playerID];
         if (self->alpha > 0) {
             Mod_HUD->dpadTouchAnimator.frameID = 5;
-            RSDK.DrawSprite(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->pausePos, true);
+            HUD_DrawRGBTouch(&Mod_HUD->dpadTouchAnimator, &Mod_HUD->pausePos, true);
         }
     }
 
