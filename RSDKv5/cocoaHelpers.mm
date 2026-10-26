@@ -216,4 +216,70 @@ return true;
     return false;
 #endif
 }
+extern "C" bool iosCRTMetalRender(
+    void *metalEncoder,
+    void *sdlTexture,
+    float pixelWidth,
+    float pixelHeight,
+    float textureWidth,
+    float textureHeight,
+    float viewWidth,
+    float viewHeight,
+    float screenDim)
+{
+#if TARGET_OS_IPHONE
+    if (!metalEncoder || !sdlTexture || !crtSharpPipeline)
+        return false;
+
+    typedef void *(*MetalTextureLookup)(SDL_Texture *);
+
+    MetalTextureLookup lookup =
+        reinterpret_cast<MetalTextureLookup>(
+            dlsym(RTLD_DEFAULT, "RSDK_GetMetalTexture")
+        );
+
+    if (!lookup)
+        return false;
+
+    void *nativeTexture =
+        lookup(static_cast<SDL_Texture *>(sdlTexture));
+
+    if (!nativeTexture)
+        return false;
+
+    id<MTLRenderCommandEncoder> encoder =
+        (__bridge id<MTLRenderCommandEncoder>)metalEncoder;
+
+    id<MTLTexture> texture =
+        (__bridge id<MTLTexture>)nativeTexture;
+
+    struct CRTUniforms {
+        simd_float2 pixelSize;
+        simd_float2 textureSize;
+        simd_float2 viewSize;
+        float screenDim;
+    };
+
+    CRTUniforms uniforms = {
+        { pixelWidth, pixelHeight },
+        { textureWidth, textureHeight },
+        { viewWidth, viewHeight },
+        screenDim
+    };
+
+    [encoder setRenderPipelineState:crtSharpPipeline];
+    [encoder setFragmentTexture:texture atIndex:0];
+    [encoder setFragmentBytes:&uniforms
+                       length:sizeof(uniforms)
+                      atIndex:0];
+
+    [encoder drawPrimitives:MTLPrimitiveTypeTriangle
+               vertexStart:0
+               vertexCount:3];
+
+    return true;
+#else
+    return false;
+#endif
+}
 #endif 
