@@ -233,6 +233,15 @@ jobs:
           echo "Ultrawide schemes:"
           xcodebuild -list -project Mods/UltrawideMania/UltrawideMania.xcodeproj     
 
+      - name: Inspect palette-independent touch drawing options
+        run: |
+          echo "=== Drawing APIs and tint support ==="
+          grep -R -n -E 'DrawRect|DrawCircle|DrawLine|INK_TINT|SetTintLookupTable|SetPaletteEntry|SetActivePalette' \
+            RSDKv5/RSDK/Graphics Mods/GameAPI Mods/ManiaTouchControls/ManiaTouchControls \
+            --include='*.cpp' --include='*.hpp' --include='*.h' --include='*.c' | head -110 || true
+          echo "=== Touch HUD render entry points ==="
+          grep -n -E 'HUD_DrawTouchControls|RSDK.DrawSprite|inkEffect' \
+            Mods/ManiaTouchControls/ManiaTouchControls/Objects/HUD.c | head -65
       - name: Build Sonic Mania frameworks
         run: |
           set -e
