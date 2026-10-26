@@ -113,6 +113,27 @@ void RenderDevice::FlipScreen()
 #if RETRO_PLATFORM == RETRO_iOS
     // Persistent offscreen target for future CRT processing.
     static SDL_Texture *crtFrameTarget = nullptr;
+        if (crtFrameTarget) {
+        int currentWidth = 0;
+        int currentHeight = 0;
+        int targetWidth = 0;
+        int targetHeight = 0;
+
+        if (SDL_GetRendererOutputSize(
+                renderer, &currentWidth, &currentHeight) == 0
+            && SDL_QueryTexture(
+                crtFrameTarget, nullptr, nullptr,
+                &targetWidth, &targetHeight) == 0
+            && (currentWidth != targetWidth ||
+                currentHeight != targetHeight)) {
+
+            SDL_DestroyTexture(crtFrameTarget);
+            crtFrameTarget = nullptr;
+
+            PrintLog(PRINT_NORMAL,
+                     "iOS CRT: Frame target resized");
+        }
+    }
         if (!crtFrameTarget) {
         int outputWidth = 0;
         int outputHeight = 0;
