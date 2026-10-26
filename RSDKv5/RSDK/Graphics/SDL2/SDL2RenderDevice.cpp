@@ -556,8 +556,7 @@ PrintLog(PRINT_NORMAL,
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(
     renderer, 0, 0, 0,
-    videoSettings.shaderID == 2 ? 100 :
-videoSettings.shaderID == 3 ? 35 : 0
+    videoSettings.shaderID == 3 ? 35 : 0
 );
 
             for (int y = 0; y < outputHeight; y += 4) {
@@ -586,6 +585,34 @@ SDL_RenderSetLogicalSize(renderer, 0, 0);
             PrintLog(PRINT_NORMAL,
                      "iOS CRT: Display target restore failed: %s",
                      SDL_GetError());
+        }
+    }
+#endif
+#if RETRO_PLATFORM == RETRO_iOS
+    // Experimental native CRT-Sharp pass. The regular SDL copy above
+    // remains the fallback when the Metal bridge is unavailable.
+    if (crtOffscreenActive && videoSettings.shaderID == 2
+        && iosCRTMetalShaderLoaded()) {
+        int sourceWidth = 0, sourceHeight = 0;
+        int outputWidth = 0, outputHeight = 0;
+        if (SDL_QueryTexture(crtFrameTarget, nullptr, nullptr,
+                             &sourceWidth, &sourceHeight) == 0
+            && SDL_GetRendererOutputSize(renderer,
+                                         &outputWidth, &outputHeight) == 0
+            && sourceWidth > 0 && sourceHeight > 0
+            && outputWidth > 0 && outputHeight > 0) {
+            void *encoder = SDL_RenderGetMetalCommandEncoder(renderer);
+            static bool nativeResultLogged = false;
+            bool rendered = iosCRTMetalRender(
+                encoder, crtFrameTarget,
+                (float)sourceWidth, (float)sourceHeight,
+                (float)sourceWidth, (float)sourceHeight,
+                (float)outputWidth, (float)outputHeight, dimAmount);
+            if (!nativeResultLogged) {
+                nativeResultLogged = true;
+                PrintLog(PRINT_NORMAL, "iOS CRT: Native CRT-Sharp draw = %s",
+                         rendered ? "SUCCESS" : "FAILED");
+            }
         }
     }
 #endif
