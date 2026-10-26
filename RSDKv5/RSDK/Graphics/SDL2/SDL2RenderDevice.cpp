@@ -113,6 +113,27 @@ void RenderDevice::FlipScreen()
 #if RETRO_PLATFORM == RETRO_iOS
     // Persistent offscreen target for future CRT processing.
     static SDL_Texture *crtFrameTarget = nullptr;
+        if (!crtFrameTarget) {
+        int outputWidth = 0;
+        int outputHeight = 0;
+
+        if (SDL_GetRendererOutputSize(
+                renderer, &outputWidth, &outputHeight) == 0
+            && outputWidth > 0 && outputHeight > 0) {
+
+            crtFrameTarget = SDL_CreateTexture(
+                renderer,
+                SDL_PIXELFORMAT_BGRA8888,
+                SDL_TEXTUREACCESS_TARGET,
+                outputWidth,
+                outputHeight
+            );
+
+            PrintLog(PRINT_NORMAL,
+                     "iOS CRT: Frame target creation = %s",
+                     crtFrameTarget ? "SUCCESS" : SDL_GetError());
+        }
+    }
 #endif
     // Clear the screen. This is needed to keep the
     // pillarboxes in fullscreen from displaying garbage data.
