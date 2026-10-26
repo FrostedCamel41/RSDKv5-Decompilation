@@ -157,6 +157,21 @@ void RenderDevice::FlipScreen()
         }
     }
 #endif
+    #if RETRO_PLATFORM == RETRO_iOS
+    // Begin rendering the game into the CRT frame texture.
+    bool crtOffscreenActive = false;
+
+    if (crtFrameTarget) {
+        if (SDL_SetRenderTarget(renderer, crtFrameTarget) == 0) {
+            crtOffscreenActive = true;
+        }
+        else {
+            PrintLog(PRINT_NORMAL,
+                     "iOS CRT: Offscreen target activation failed: %s",
+                     SDL_GetError());
+        }
+    }
+#endif
     // Clear the screen. This is needed to keep the
     // pillarboxes in fullscreen from displaying garbage data.
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
@@ -551,7 +566,26 @@ PrintLog(PRINT_NORMAL,
             SDL_SetRenderDrawBlendMode(renderer, previousBlendMode);
         }
     }
+#if RETRO_PLATFORM == RETRO_iOS
+    if (crtOffscreenActive) {
+        if (SDL_SetRenderTarget(renderer, nullptr) == 0) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
 
+            if (SDL_RenderCopy(
+                    renderer, crtFrameTarget, nullptr, nullptr) != 0) {
+                PrintLog(PRINT_NORMAL,
+                         "iOS CRT: Frame copy failed: %s",
+                         SDL_GetError());
+            }
+        }
+        else {
+            PrintLog(PRINT_NORMAL,
+                     "iOS CRT: Display target restore failed: %s",
+                     SDL_GetError());
+        }
+    }
+#endif
     SDL_RenderPresent(renderer);
 
 }
