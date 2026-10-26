@@ -335,76 +335,41 @@ jobs:
           if not path.is_file() or not binary.is_file():
               raise SystemExit("TouchControls.gif/.bin missing from expected mod folder")
 
-          # Patch the GIF global color table IN PLACE. RSDK's GIF decoder
-          # reads that table directly; Pillow's GIF re-save may remap indices
-          # or introduce a local color table, defeating the intended change.
-          data = bytearray(path.read_bytes())
-          if data[:6] not in (b"GIF87a", b"GIF89a"):
-              raise SystemExit("Touch artwork is not a GIF")
-          packed = data[10]
-          if not packed & 0x80:
-              raise SystemExit("GIF lacks the global palette RSDK expects")
-          count = 1 << ((packed & 7) + 1)
-          offset = 13
-          if len(data) < offset + count * 3:
-              raise SystemExit("Truncated global GIF palette")
-          before = hashlib.sha256(data).hexdigest()
-          old_colors = []
-          new_colors = []
-          # Remaster the original control-specific palette slots instead of
-          # recoloring every GIF entry by brightness. Keep index 0 (usually
-          # transparent) and non-control accent colors unchanged.
-          # Test the blue ramp actually used by the touch sprites.
-          # Preserve index 0 (magenta transparency) and all sprite geometry.
-          control_colors = {
-              1: (32, 76, 110),
-              2: (40, 93, 136),
-              3: (58, 127, 171),
-              4: (80, 164, 204),
-              5: (105, 190, 222),
-              6: (132, 211, 233),
-              7: (181, 234, 247),
-              8: (47, 104, 133),
-              9: (111, 188, 214),
-              10: (169, 219, 231),
-              11: (213, 243, 249),
-              32: (81, 146, 182),
-              34: (133, 206, 226),
-              35: (192, 234, 244),
-              55: (133, 206, 226),
-              56: (192, 234, 244),
-          }
-          for index in range(count):
-              pos = offset + 3 * index
-              rgb = tuple(data[pos:pos + 3])
-              old_colors.append(rgb)
-              color = control_colors.get(index, rgb)
-              data[pos:pos + 3] = bytes(color)
-              new_colors.append(color)
-          path.write_bytes(data)
-          # Verify decoded appearance without re-encoding the file.
-          with Image.open(path) as image:
-              image.load()
-              print("TOUCH GIF VERIFIED:", image.size, image.mode,
-                    "global colors:", count)
-          # Inspect the actual decoded pixel indices; palette entries alone
-          # cannot tell us which shades the rendered buttons use.
+          # RSDK sprites are palette-indexed: the GIF RGB palette is NOT
+          # the runtime palette. Reassign dark button-fill pixels to an
+          # existing bright index, preserving geometry and transparency.
+          # This is a controlled diagnostic build, not the final artwork.
           from collections import Counter
-          with Image.open(path) as sprite:
-              sprite.seek(0)
-              pixels = Counter(sprite.getdata())
-              print("TOUCH PIXEL INDEX COUNTS:", pixels.most_common(45))
-              print("TOUCH PIXEL COLORS:", [
-                  (idx, n, old_colors[idx], new_colors[idx])
-                  for idx, n in pixels.most_common(45)
-                  if isinstance(idx, int) and idx < count
-              ])
-              print("TOUCH GIF INFO:", sprite.info)
-          after = hashlib.sha256(path.read_bytes()).hexdigest()
-          if before == after:
-              raise SystemExit("Global GIF palette unchanged")
-          print("TOUCH GLOBAL PALETTE:", list(enumerate(zip(old_colors, new_colors)))[:16])
-          print(f"TOUCH ARTWORK VERIFIED: {count} global colors patched without GIF re-encoding; SHA {before[:12]} -> {after[:12]}")
+          with Image.open(path) as source:
+              source.load()
+              if source.mode != "P" or source.size != (256, 256):
+                  raise SystemExit("Unexpected touch sprite format")
+              before_indices = Counter(source.getdata())
+              original_palette = source.getpalette()
+              # 41 is white in the source palette and is already used by
+              # this sprite. Keep 0 (transparency), 1 (outlines), and
+              # yellow/action accents untouched.
+              mapping = bytes([41 if i in (32, 34, 35) else i for i in range(256)])
+              pixels = source.tobytes().translate(mapping)
+              remapped = Image.frombytes("P", source.size, pixels)
+              remapped.putpalette(original_palette)
+              remapped.save(path, format="GIF", optimize=False)
+          with Image.open(path) as check:
+              check.load()
+              after_indices = Counter(check.getdata())
+              if check.mode != "P" or check.size != (256, 256):
+                  raise SystemExit("Touch GIF format changed")
+              expected = Counter(pixels)
+              if after_indices != Counter(pixels):
+                  # Counter(bytes) counts each byte's palette index.
+                  raise SystemExit("GIF re-encoding altered sprite indices")
+              if after_indices[0] != before_indices[0]:
+                  raise SystemExit("Transparency index count changed")
+              print("TOUCH INDEX REMAP TEST: 32,34,35 -> 41 (bright fill)")
+              print("TOUCH INDEX COUNTS BEFORE:", before_indices.most_common(16))
+              print("TOUCH INDEX COUNTS AFTER:", after_indices.most_common(16))
+              print("TOUCH GIF VALIDATED:", check.size, check.mode)
+
           PY
       - name: Package unsigned IPA
         run: |
