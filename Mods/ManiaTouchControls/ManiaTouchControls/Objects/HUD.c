@@ -13,6 +13,8 @@ static int32 touchVisibilityHold = 0;
 static bool32 touchVisibilityLatched = false;
 static float touchVisibleOpacity = 0.42f;
 
+// Three fingers: show/hide. Four fingers: cycle 25%, 50%, 75%, 100%.
+// Both gestures require releasing every finger before another action.
 static void HUD_UpdateTouchVisibility(void)
 {
     int32 pressed = 0;
@@ -21,8 +23,6 @@ static void HUD_UpdateTouchVisibility(void)
             ++pressed;
     }
 
-    // Require all fingers released before allowing another toggle.
-    // Brief drops from three fingers to one or two must not re-arm it.
     if (pressed == 0) {
         touchVisibilityHold = 0;
         touchVisibilityLatched = false;
@@ -31,15 +31,30 @@ static void HUD_UpdateTouchVisibility(void)
     if (touchVisibilityLatched)
         return;
 
-    if (pressed >= 3) {
+    if (pressed == 3 || pressed >= 4) {
         if (++touchVisibilityHold >= 45) {
-            if (config.vDPadOpacity > 0.0f) {
+            if (pressed >= 4) {
+                // Cycle discrete opacity levels, preserving the selected
+                // level when switching back to invisible controls.
+                float current = config.vDPadOpacity > 0.0f ? config.vDPadOpacity : touchVisibleOpacity;
+                if (current < 0.375f)
+                    touchVisibleOpacity = 0.50f;
+                else if (current < 0.625f)
+                    touchVisibleOpacity = 0.75f;
+                else if (current < 0.875f)
+                    touchVisibleOpacity = 1.0f;
+                else
+                    touchVisibleOpacity = 0.25f;
+                config.vDPadOpacity = touchVisibleOpacity;
+            }
+            else if (config.vDPadOpacity > 0.0f) {
                 touchVisibleOpacity = config.vDPadOpacity;
                 config.vDPadOpacity = 0.0f;
             }
             else {
                 config.vDPadOpacity = touchVisibleOpacity;
             }
+
             Mod.SetSettingsFloat("Config:vDPadOpacity", config.vDPadOpacity);
             Mod.SaveSettings();
             touchVisibilityLatched = true;
