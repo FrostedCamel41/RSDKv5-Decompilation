@@ -387,6 +387,19 @@ jobs:
               image.load()
               print("TOUCH GIF VERIFIED:", image.size, image.mode,
                     "global colors:", count)
+          # Inspect the actual decoded pixel indices; palette entries alone
+          # cannot tell us which shades the rendered buttons use.
+          from collections import Counter
+          with Image.open(path) as sprite:
+              sprite.seek(0)
+              pixels = Counter(sprite.getdata())
+              print("TOUCH PIXEL INDEX COUNTS:", pixels.most_common(45))
+              print("TOUCH PIXEL COLORS:", [
+                  (idx, n, old_colors[idx], new_colors[idx])
+                  for idx, n in pixels.most_common(45)
+                  if isinstance(idx, int) and idx < count
+              ])
+              print("TOUCH GIF INFO:", sprite.info)
           after = hashlib.sha256(path.read_bytes()).hexdigest()
           if before == after:
               raise SystemExit("Global GIF palette unchanged")
