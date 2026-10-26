@@ -696,6 +696,11 @@ bool RenderDevice::InitGraphicsAPI()
         screens[s].size.y = videoSettings.pixHeight;
         
         float viewAspect = viewSize.x / viewSize.y;
+        #if RETRO_PLATFORM == RETRO_iOS
+PrintLog(PRINT_NORMAL,
+         "iOS Aspect: view=%dx%d ratio=%.6f",
+         viewSize.x, viewSize.y, viewAspect);
+#endif
 #if !RETRO_USE_ORIGINAL_CODE
         screenWidth = (int32)((viewAspect * videoSettings.pixHeight) + 3) & 0xFFFFFFFC;
 #else
