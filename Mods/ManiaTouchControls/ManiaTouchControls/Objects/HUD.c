@@ -80,6 +80,8 @@ static void HUD_UpdateTouchVisibility(void)
 // Experimental palette-independent touch artwork. The input hitboxes and
 // gesture handling remain unchanged. All colors below are true RGB values,
 // not indices into the active stage palette.
+// Palette-independent, translucent mobile controls. All geometry is visual
+// only: input hitboxes, touch processing and gesture logic are unchanged.
 static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRelative)
 {
     RSDK_THIS(HUD);
@@ -93,39 +95,64 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     int32 a = self->alpha;
     if (a > 255) a = 255;
     const uint32 fill = 0x648CA9;
-    const uint32 rim  = 0xD6ECFA;
+    const uint32 rim = 0xD6ECFA;
     const uint32 active = 0xB9E5FF;
+    const uint32 glyph = 0xE8F6FF;
     int32 frame = animator->frameID;
     bool32 pressed = animator == &Mod_HUD->dpadTouchAnimator;
+    int32 fillAlpha = pressed ? (a * 3) / 5 : (a * 2) / 5;
+    int32 rimAlpha = (a * 4) / 5;
 
     if (frame == 10) {
-        RSDK.DrawCircle(x, y, radius + 8, fill, a / 3, INK_ALPHA, screenRelative);
-        RSDK.DrawCircleOutline(x, y, radius + 6, radius + 8, rim, a, INK_ALPHA, screenRelative);
+        // D-pad: a quiet glass ring with an unobstructed center.
+        RSDK.DrawCircle(x, y, radius + 8, fill, a / 7, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(x, y, radius + 6, radius + 8, rim, rimAlpha, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
         return;
     }
     if (frame == 11) {
-        RSDK.DrawCircle(x, y, 5, rim, a, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
         return;
     }
     if (frame >= 6 && frame <= 9) {
         int32 dx = frame == 6 ? -radius : frame == 7 ? radius : 0;
         int32 dy = frame == 8 ? -radius : frame == 9 ? radius : 0;
-        RSDK.DrawCircle(x + dx, y + dy, 9, pressed ? active : fill, a, INK_ALPHA, screenRelative);
-        RSDK.DrawCircleOutline(x + dx, y + dy, 8, 10, rim, a, INK_ALPHA, screenRelative);
+        int32 bx = x + dx, by = y + dy;
+        int32 pad = radius / 2;
+        if (pad < 8) pad = 8;
+        RSDK.DrawCircle(bx, by, pad, pressed ? active : fill, fillAlpha, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(bx, by, pad - 2, pad, rim, rimAlpha, INK_ALPHA, screenRelative);
+        // Four compact directional chevrons, in true RGB rather than stage indices.
+        if (frame == 6) {
+            RSDK.DrawLine(bx + 3, by - 4, bx - 2, by, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx - 2, by, bx + 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
+        }
+        else if (frame == 7) {
+            RSDK.DrawLine(bx - 3, by - 4, bx + 2, by, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx + 2, by, bx - 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
+        }
+        else if (frame == 8) {
+            RSDK.DrawLine(bx - 4, by + 3, bx, by - 2, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx, by - 2, bx + 4, by + 3, glyph, a, INK_ALPHA, screenRelative);
+        }
+        else {
+            RSDK.DrawLine(bx - 4, by - 3, bx, by + 2, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx, by + 2, bx + 4, by - 3, glyph, a, INK_ALPHA, screenRelative);
+        }
         return;
     }
     if (frame >= 12 && frame <= 15)
-        return; // The two cardinal highlights already indicate diagonals.
+        return;
 
     int32 small = frame == 5 ? 11 : radius;
-    RSDK.DrawCircle(x, y, small, pressed ? active : fill, a, INK_ALPHA, screenRelative);
-    RSDK.DrawCircleOutline(x, y, small - 2, small, rim, a, INK_ALPHA, screenRelative);
+    RSDK.DrawCircle(x, y, small, pressed ? active : fill, fillAlpha, INK_ALPHA, screenRelative);
+    RSDK.DrawCircleOutline(x, y, small - 2, small, rim, rimAlpha, INK_ALPHA, screenRelative);
     if (frame == 5) {
-        RSDK.DrawRect(x - 4, y - 5, 3, 10, rim, a, INK_ALPHA, screenRelative);
-        RSDK.DrawRect(x + 2, y - 5, 3, 10, rim, a, INK_ALPHA, screenRelative);
+        RSDK.DrawRect(x - 4, y - 5, 3, 10, glyph, rimAlpha, INK_ALPHA, screenRelative);
+        RSDK.DrawRect(x + 2, y - 5, 3, 10, glyph, rimAlpha, INK_ALPHA, screenRelative);
     }
     else {
-        RSDK.DrawCircle(x, y, 4, rim, a, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
     }
 }
 
