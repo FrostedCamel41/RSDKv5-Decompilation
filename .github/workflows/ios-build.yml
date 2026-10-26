@@ -351,7 +351,15 @@ jobs:
                   offset = 3 * index
                   if offset + 2 >= len(palette):
                       continue
-                  palette[offset:offset + 3] = [55, 215, 240]
+                  # Preserve source luminance for soft blue-white remaster shading.
+                  red, green, blue = palette[offset:offset + 3]
+                  brightness = (red * 299 + green * 587 + blue * 114) // 1000
+                  tone = max(0.0, min(1.0, brightness / 255.0))
+                  palette[offset:offset + 3] = [
+                      round(25 + 115 * tone),
+                      round(120 + 115 * tone),
+                      round(175 + 80 * tone),
+                  ]
                   changed += 1
               if not changed:
                   raise SystemExit("No visible palette entries to recolor")
