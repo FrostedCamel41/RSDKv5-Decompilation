@@ -351,17 +351,22 @@ jobs:
           before = hashlib.sha256(data).hexdigest()
           old_colors = []
           new_colors = []
+          # Remaster the original control-specific palette slots instead of
+          # recoloring every GIF entry by brightness. Keep index 0 (usually
+          # transparent) and non-control accent colors unchanged.
+          control_colors = {
+              1: (28, 61, 94),       # readable navy details
+              32: (81, 146, 182),    # muted outline
+              34: (133, 206, 226),   # cool-blue shading
+              35: (192, 234, 244),   # soft highlight
+              55: (133, 206, 226),   # control face shade
+              56: (192, 234, 244),   # control face highlight
+          }
           for index in range(count):
               pos = offset + 3 * index
               rgb = tuple(data[pos:pos + 3])
               old_colors.append(rgb)
-              brightness = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) // 1000
-              if brightness < 70:
-                  color = (26, 64, 110)
-              elif brightness < 150:
-                  color = (112, 202, 235)
-              else:
-                  color = (222, 248, 255)
+              color = control_colors.get(index, rgb)
               data[pos:pos + 3] = bytes(color)
               new_colors.append(color)
           path.write_bytes(data)
