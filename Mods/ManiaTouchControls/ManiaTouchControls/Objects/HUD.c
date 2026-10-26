@@ -104,10 +104,11 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     int32 rimAlpha = (a * 4) / 5;
 
     if (frame == 10) {
-        // D-pad: a quiet glass ring with an unobstructed center.
-        RSDK.DrawCircle(x, y, radius + 8, fill, a / 7, INK_ALPHA, screenRelative);
-        RSDK.DrawCircleOutline(x, y, radius + 6, radius + 8, rim, rimAlpha, INK_ALPHA, screenRelative);
-        RSDK.DrawCircle(x, y, 4, glyph, rimAlpha, INK_ALPHA, screenRelative);
+        // A very light outer guide: retain directional clarity without
+        // obscuring the stage or competing with the four arrow buttons.
+        RSDK.DrawCircle(x, y, radius + 8, fill, a / 14, INK_ALPHA, screenRelative);
+        RSDK.DrawCircleOutline(x, y, radius + 7, radius + 8, rim, a / 3, INK_ALPHA, screenRelative);
+        RSDK.DrawCircle(x, y, 3, glyph, a / 2, INK_ALPHA, screenRelative);
         return;
     }
     if (frame == 11) {
