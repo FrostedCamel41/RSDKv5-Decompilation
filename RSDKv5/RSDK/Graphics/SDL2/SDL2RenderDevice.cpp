@@ -122,7 +122,7 @@ void RenderDevice::FlipScreen()
         int outputW = 0, outputH = 0;
         int logicalW = 0, logicalH = 0;
         int windowW = 0, windowH = 0;
-SDL_GetWindowSize(SDL_GetRendererWindow(renderer), &windowW, &windowH);
+SDL_GetWindowSize(SDL_RenderGetWindow(renderer), &windowW, &windowH);
         SDL_GetRendererOutputSize(renderer, &outputW, &outputH);
         SDL_RenderGetLogicalSize(renderer, &logicalW, &logicalH);
         SDL_Rect viewport;
