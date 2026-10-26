@@ -97,7 +97,8 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
     const uint32 fill = 0x648CA9;
     const uint32 rim = 0xD6ECFA;
     const uint32 active = 0xB9E5FF;
-    const uint32 glyph = 0xE8F6FF;
+    const uint32 glyph = 0xFFFFFF;
+    const uint32 glyphShadow = 0x315575;
     int32 frame = animator->frameID;
     bool32 pressed = animator == &Mod_HUD->dpadTouchAnimator;
     int32 fillAlpha = pressed ? (a * 3) / 5 : (a * 2) / 5;
@@ -123,21 +124,30 @@ static void HUD_DrawRGBTouch(Animator *animator, Vector2 *pos, bool32 screenRela
         if (pad < 8) pad = 8;
         RSDK.DrawCircle(bx, by, pad, pressed ? active : fill, fillAlpha, INK_ALPHA, screenRelative);
         RSDK.DrawCircleOutline(bx, by, pad - 2, pad, rim, rimAlpha, INK_ALPHA, screenRelative);
-        // Four compact directional chevrons, in true RGB rather than stage indices.
+        // High-contrast white chevrons with a soft blue shadow; leave
+        // the translucent button fill and the D-pad guide untouched.
         if (frame == 6) {
+            RSDK.DrawLine(bx + 3, (by - 4) + 1, bx - 2, (by) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx + 3, by - 4, bx - 2, by, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx - 2, (by) + 1, bx + 3, (by + 4) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx - 2, by, bx + 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
         }
         else if (frame == 7) {
+            RSDK.DrawLine(bx - 3, (by - 4) + 1, bx + 2, (by) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx - 3, by - 4, bx + 2, by, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx + 2, (by) + 1, bx - 3, (by + 4) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx + 2, by, bx - 3, by + 4, glyph, a, INK_ALPHA, screenRelative);
         }
         else if (frame == 8) {
+            RSDK.DrawLine(bx - 4, (by + 3) + 1, bx, (by - 2) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx - 4, by + 3, bx, by - 2, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx, (by - 2) + 1, bx + 4, (by + 3) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx, by - 2, bx + 4, by + 3, glyph, a, INK_ALPHA, screenRelative);
         }
         else {
+            RSDK.DrawLine(bx - 4, (by - 3) + 1, bx, (by + 2) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx - 4, by - 3, bx, by + 2, glyph, a, INK_ALPHA, screenRelative);
+            RSDK.DrawLine(bx, (by + 2) + 1, bx + 4, (by - 3) + 1, glyphShadow, (a * 3) / 4, INK_ALPHA, screenRelative);
             RSDK.DrawLine(bx, by + 2, bx + 4, by - 3, glyph, a, INK_ALPHA, screenRelative);
         }
         return;
