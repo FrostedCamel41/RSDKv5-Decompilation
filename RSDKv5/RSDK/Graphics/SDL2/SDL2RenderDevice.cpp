@@ -123,6 +123,12 @@ void RenderDevice::FlipScreen()
         int logicalW = 0, logicalH = 0;
         SDL_GetRendererOutputSize(renderer, &outputW, &outputH);
         SDL_RenderGetLogicalSize(renderer, &logicalW, &logicalH);
+        SDL_Rect viewport;
+        SDL_RenderGetViewport(renderer, &viewport);
+PrintLog(PRINT_NORMAL,
+         "iOS Display: viewport=%d,%d %dx%d",
+         viewport.x, viewport.y,
+         viewport.w, viewport.h);
         PrintLog(PRINT_NORMAL,
                  "iOS Display: output=%dx%d logical=%dx%d",
                  outputW, outputH, logicalW, logicalH);
