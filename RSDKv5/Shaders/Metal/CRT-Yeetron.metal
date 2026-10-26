@@ -108,5 +108,5 @@ fragment float4 crtYeetron(
         ? intensity * blended
         : blended;
 
-    return float4(result * u.screenDim, color.a);
+    return float4(result, color.a) * u.screenDim;
 }
