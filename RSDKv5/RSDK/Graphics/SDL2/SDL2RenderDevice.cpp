@@ -556,8 +556,8 @@ PrintLog(PRINT_NORMAL,
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(
     renderer, 0, 0, 0,
-    videoSettings.shaderID == 0 ? 0 :
-    videoSettings.shaderID == 1 ? 35 : 100
+    videoSettings.shaderID == 2 ? 100 :
+videoSettings.shaderID == 3 ? 35 : 0
 );
 
             for (int y = 0; y < outputHeight; y += 4) {
